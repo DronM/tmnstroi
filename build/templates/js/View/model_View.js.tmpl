@@ -1,0 +1,83 @@
+/**	
+ * @author Andrey Mikhalevich <katrenplus@mail.ru>, 2022
+
+ * @extends ViewAjxList
+ * @requires core/extend.js
+ * @requires controls/ViewAjxList.js     
+
+ * @class
+ * @classdesc
+ 
+ * @param {string} id - Object identifier
+ * @param {object} options
+ */
+function {{ID}}_View(id,options){
+	options = options || {};	
+	
+	{{ID}}_View.superclass.constructor.call(this,id,options);
+	
+	var model = options.models.{{ID}}_Model;
+	var contr = new {{CONTROLLER_ID}}_Controller();
+	
+	var constants = {"doc_per_page_count":null, "grid_refresh_interval":null};
+	window.getApp().getConstantManager().get(constants);
+	
+	var pagClass = window.getApp().getPaginationClass();
+	
+	var popup_menu = new PopUpMenu();
+	
+	this.addElement(new GridAjx(id+":grid",{
+		"model":model,
+		"keyIds":[{{KEY_IDS}}],
+		"controller":contr,
+		"editInline":{{EDIT_INLINE}},
+		"editWinClass":null,
+		"popUpMenu":popup_menu,
+		"commands":new GridCmdContainerAjx(id+":grid:cmd"),
+		"head":new GridHead(id+":grid:head",{
+			"elements":[
+				new GridRow(id+":grid:head:row0",{					
+					"elements":[
+						{{#COLUMN}}
+						new GridCellHead(id+":grid:head:{{ID}}",{
+							"value":{{CAPTION}},
+							"columns":[
+								new GridColumn({
+									"field":model.getField("{{ID}}"),
+									"ctrlClass":EditString,
+									"ctrlOptions":{
+										"labelCaption":""
+									}									
+								})
+							],
+							"sortable":{{SORTABLE}}
+							{{#SORT}},"sort":"asc"{{/SORT}}
+						})
+						{{/COLUMN}}
+					]
+				})
+			]
+		}),
+		"pagination":new pagClass(id+"_page",
+			{"countPerPage":constants.doc_per_page_count.getValue()}),		
+		
+		"autoRefresh":false,
+		"refreshInterval":constants.grid_refresh_interval.getValue()*1000,
+		"rowSelect":false,
+		"focus":true
+	}));		
+	
+}
+//ViewObjectAjx,ViewAjxList
+extend(MaterialList_View,ViewAjxList);
+
+/* Constants */
+
+
+/* private members */
+
+/* protected*/
+
+
+/* public methods */
+

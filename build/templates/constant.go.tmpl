@@ -1,0 +1,23 @@
+package constants
+
+/**
+ * Andrey Mikhalevich 20/12/21
+ * This file is part of the OSBE framework
+ * 
+ * This file is generated from the template build/templates/constant.go.tmpl
+ * All direct modification will be lost with the next build.
+ * Edit template instead.
+*/
+
+import (
+	"osbe"
+)
+
+type Constant_{{ID}} struct {
+	osbe.Constant{{DATA_TYPE}}
+}
+
+func New_Constant_{{ID}}() *Constant_{{ID}} {
+	return &{{ID}}{ osbe.Constant{{DATA_TYPE}}{ID: "{{ID}}", Autoload: {{AUTOLOAD}} }}
+}
+

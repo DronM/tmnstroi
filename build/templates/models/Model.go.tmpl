@@ -1,0 +1,60 @@
+package models
+
+/**
+ * Andrey Mikhalevich 15/12/21
+ * This file is part of the OSBE framework
+ *
+ * THIS FILE IS GENERATED FROM TEMPLATE build/templates/models/Model.go.tmpl
+ * ALL DIRECT MODIFICATIONS WILL BE LOST WITH THE NEXT BUILD PROCESS!!!
+ */
+
+import (
+	"reflect"	
+	{{#ENUMS_EXIST}}"{{APP_NAME}}/enums"{{/ENUMS_EXIST}}	
+	"osbe/fields"
+	"osbe/model"
+)
+
+type {{ID}} struct {
+	{{#FIELDS}}
+	{{NAME}} {{TYPE}} `json:"{{ID}}"{{#LEN}} length:{{LEN}}{{/LEN}}{{#REQ}} required:"{{REQ}}"{{/REQ}}{{#PK}} primaryKey:"{{PK}}"{{/PK}}{{#AI}} autoInc:"true"{{/AI}}{{#ALIAS}} alias:"{{ALIAS}}"{{/ALIAS}}{{#PREC}} precision:"{{PREC}}"{{/PREC}}{{#ORD}} defOrder:"{{ORD}}"{{/ORD}}`
+	{{/FIELDS}}
+}
+
+func NewModelMD_{{ID}}() *model.ModelMD{
+	return &model.ModelMD{Fields: fields.GenModelMD(reflect.ValueOf({{ID}}{})),
+		ID: "{{ID}}_Model",
+		Relation: "{{OBJECT_DATA_TABLE}}",
+	}
+}
+{{#NOT_VIRTUAL}}
+//for insert
+type {{ID}}_argv struct {
+	Argv *{{ID}} `json:"argv"`	
+}
+
+//Keys for delete/get object
+type {{ID}}_keys struct {
+	{{#KEYS}}
+	{{NAME}} {{TYPE}} `json:"{{ID}}"`
+	{{/KEYS}}
+}
+type {{ID}}_keys_argv struct {
+	Argv *{{ID}}_keys `json:"argv"`	
+}
+
+//old keys for update
+type {{ID}}_old_keys struct {
+	{{#FIELDS}}
+	{{#PK}}
+	Old_{{ID}} {{TYPE}} `json:"old_{{ID}}"{{#LEN}} length:{{LEN}}{{/LEN}}{{#REQ}} required:"{{REQ}}"{{/REQ}}{{#ALIAS}} alias:"{{ALIAS}}"{{/ALIAS}}{{#PREC}} precision:"{{PREC}}"{{/PREC}}`
+	{{/PK}}
+	{{NAME}} {{TYPE}} `json:"{{ID}}"{{#LEN}} length:{{LEN}}{{/LEN}}{{#ALIAS}} alias:"{{ALIAS}}"{{/ALIAS}}{{#PREC}} precision:"{{PREC}}"{{/PREC}}`
+	{{/FIELDS}}
+}
+
+type {{ID}}_old_keys_argv struct {
+	Argv *{{ID}}_old_keys `json:"argv"`	
+}
+
+{{/NOT_VIRTUAL}}

@@ -1,0 +1,85 @@
+package tests
+
+/**
+ * Andrey Mikhalevich 18/12/21
+ * This file is part of the OSBE framework
+ *
+ * THIS FILE IS GENERATED FROM TEMPLATE build/templates/controllers/Controller_test.go.tmpl
+ */
+
+import(
+	"testing"	
+)
+
+const {{ID}}_contr = "{{ID}}_Controller"
+
+{{#INSERT}}
+func Test{{ID}}_insert(t *testing.T) {
+	cl, params := GetClient()
+	{{#INSERT_REQUIRED_FIELDS}}
+	params["{{ID}}"] = {{TEST_VAL}}
+	{{/INSERT_REQUIRED_FIELDS}}
+	if err := cl.SendGet({{ID}}_contr, "insert", VIEW, "", params); err != nil {
+		t.Fatalf("%v", err)
+	}
+}
+{{/INSERT}}
+
+{{#GET_LIST}}
+func Test{{ID}}_get_list(t *testing.T) {
+	cl, params := GetClient()
+	if err := cl.SendGet({{ID}}_contr, "get_list", VIEW, "", params); err != nil {
+		t.Fatalf("%v", err)
+	}
+}
+{{/GET_LIST}}
+
+{{#GET_OBJECT}}
+func Test{{ID}}_get_object(t *testing.T) {
+	cl, params := GetClient()
+	{{#GET_OBJECT_KEY_FIELDS}}
+	params["{{ID}}"] = {{TEST_VAL}}
+	{{/GET_OBJECT_KEY_FIELDS}}
+	if err := cl.SendGet({{ID}}_contr, "get_object", VIEW, "", params); err != nil {
+		t.Fatalf("%v", err)
+	}
+}
+{{/GET_OBJECT}}
+
+{{#DELETE}}
+func Test{{ID}}_delete(t *testing.T) {
+	cl, params := GetClient()
+	{{#KEY_FIELDS}}
+	params["{{ID}}"] = {{TEST_VAL}}
+	{{/KEY_FIELDS}}
+	if err := cl.SendGet({{ID}}_contr, "delete", VIEW, "", params); err != nil {
+		t.Fatalf("%v", err)
+	}
+}
+{{/DELETE}}
+
+{{#COMPLETE}}
+func Test{{ID}}_complete(t *testing.T) {
+	cl, params := GetClient()
+	params["count"] = 10
+	params["ic"] = 1
+	params["mid"] = 1
+	params["{{MATCH_FIELD_ID}}"] = {{MATCH_FIELD_VAL}}
+	if err := cl.SendGet({{ID}}_contr, "complete", VIEW, "", params); err != nil {
+		t.Fatalf("%v", err)
+	}
+}
+{{/COMPLETE}}
+
+{{#METHODS}}
+func Test{{ID}}_{{METHOD_ID}}(t *testing.T) {
+	cl, params := GetClient()
+	{{#FIELDS}}
+	params["{{ID}}"] = {{TEST_VAL}}
+	{{/FIELDS}}
+	if err := cl.SendGet({{ID}}_contr, "{{METHOD_ID}}", VIEW, "", params); err != nil {
+		t.Fatalf("%v", err)
+	}
+}
+{{/METHODS}}
+

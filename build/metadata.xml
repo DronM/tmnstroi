@@ -1,0 +1,1647 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE metadata SYSTEM "metadata.dtd">
+<metadata debug="TRUE" owner="tmnstroi" dataSchema="public">
+	<versions>
+		<version dateOpen="2021-12-11 08:12:02">1.001</version>
+	<version dateOpen="2021-12-11 08:12:02" dateClose="2022-02-14 16:02:35">1.001<lastBuild>2022-02-14 16:35:20</lastBuild></version></versions>
+	<!--
+	<globalFilters>
+		<field id="store_id"/>
+	</globalFilters>
+	-->	
+	<enums>
+		<enum id="locales">
+			<value id="ru">
+				<ru descr="Русский"/>
+			</value>
+		</enum>	
+		<enum id="role_types">
+			<value id="admin">
+				<ru descr="Администратор"/>
+			</value>
+			<value id="employee">
+				<ru descr="Работник"/>
+			</value>
+			
+		</enum>	
+		<enum id="data_types" descr="Типы данных">
+			<value id="users">
+				<ru descr="Пользователи"/>
+			</value>
+		</enum>	
+		<enum id="doc_types">
+			<value id="order">
+				<ru descr="Заявка на метериалы"/>
+			</value>
+			<value id="shipment">
+				<ru descr="Отгрузка материалов"/>
+			</value>
+			<value id="movement">
+				<ru descr="Перемещение материалов"/>
+			</value>
+			<value id="pass_to_production">
+				<ru descr="Передача материалов в производство"/>
+			</value>
+			<value id="procurement">
+				<ru descr="Поступление материалов"/>
+			</value>
+			
+		</enum>	
+		<enum id="reg_types">
+			<value id="material">
+				<ru descr="Учет материалов"/>
+			</value>
+			<value id="order">
+				<ru descr="Учет заказов материалов"/>
+			</value>
+			
+		</enum>
+		
+	</enums>
+	
+	<modules>
+	</modules>
+	
+	<models limitConstant="doc_per_page_count">
+		<model id="TimeZoneLocale" parent="ModelSQL" dataTable="time_zone_locales" virtual="FALSE">
+			<field id="id" dataType="Int" primaryKey="TRUE" autoInc="TRUE" alias="Код"/>
+			<field id="descr" dataType="String" required="TRUE" length="100"/>
+			<field id="name" dataType="String" required="TRUE" length="50"/>
+			<field id="hour_dif" dataType="Float" length="5" precision="1" required="TRUE"/>
+		</model>
+		<model id="OKTMO" parent="ModelSQL" dataTable="oktmo" virtual="FALSE">
+			<defaultOrder>
+				<field id="name"/>
+			</defaultOrder>
+			<field id="id" dataType="Int" primaryKey="TRUE" autoInc="TRUE"/>
+			<field id="name" dataType="Text" required="TRUE"/>
+			<index id="oktmo_name_idx" unique="TRUE">
+				<expression>lower(name)</expression>
+			</index>
+		</model>
+	
+		<model id="User" parent="ModelSQL" dataTable="users" virtual="FALSE">
+			<defaultOrder>
+				<field id="name"/>
+			</defaultOrder>
+			<field id="id" dataType="Int" primaryKey="TRUE" autoInc="TRUE"/>
+			<field id="name" dataType="String" required="TRUE" length="50"/>
+			<field id="name_full" dataType="String" length="200"/>
+			<field id="role_id" dataType="Enum" enumId="role_types" required="TRUE"/>
+			<field id="email" dataType="String" required="FALSE" length="50"/>
+			<field id="pwd" dataType="Password" length="32"/>
+			<field id="create_dt" dataType="DateTimeTZ" defaultValue="CURRENT_TIMESTAMP"/>
+			<field id="banned" dataType="Bool" defaultValue="FALSE"/>
+			<field id="time_zone_locale_id" dataType="Int" refTable="time_zone_locales" refField="id"/>			
+			<field id="phone_cel" dataType="String" length="15"/>
+			<field id="tel_ext" dataType="String" length="5"/>
+			<field id="locale_id" dataType="Enum" enumId="locales"/>
+			<field id="email_confirmed" dataType="Bool" alias="Адрес электр.почты подтвержден" defaultValue="FALSE"/>
+			<field id="oktmo_id" dataType="Int" refTable="oktmo" refField="id"/>
+			<index id="users_name_index">
+				<field id="name" unique="TRUE"/>
+			</index>
+			<index unique="TRUE" id="users_email_idx">
+				<expression>lower(email)</expression>
+			</index>
+			<index id="users_role_id_idx">
+				<field id="role_id"/>
+			</index>						
+		</model>
+		<model id="UserList" parent="ModelSQL" dataTable="users_list" virtual="TRUE">
+			<field id="id" dataType="Int" primaryKey="TRUE"/>
+			<field id="name" dataType="String"/>
+			<field id="name_full" dataType="String"/>
+			<field id="role_id" dataType="Enum" enumId="role_types"/>
+			<field id="phone_cel" dataType="String"/>
+			<field id="tel_ext" dataType="String"/>
+			<field id="email" dataType="String"/>
+			<field id="oktmo_ref" dataType="JSON"/>
+		</model>
+		<model id="UserDialog" parent="ModelSQL" dataTable="users_dialog" virtual="TRUE">
+			<field id="id" dataType="Int" primaryKey="TRUE" alias="Код"/>
+			<field id="name" dataType="String" alias="Имя"/>
+			<field id="name_full" dataType="String"/>
+			<field id="role_id" dataType="String"/>
+			<field id="email" dataType="String" alias="Эл.почта"/>
+			<field id="create_dt" dataType="DateTimeTZ"/>
+			<field id="banned" dataType="Bool"/>
+			<field id="time_zone_locales_ref" dataType="JSON"/>
+			<field id="phone_cel" dataType="String"/>
+			<field id="tel_ext" dataType="String"/>
+			<field id="locale_id" dataType="String"/>
+			<field id="email_confirmed" dataType="Bool"/>
+			<field id="oktmo_ref" dataType="JSON"/>
+		</model>
+		<model id="UserLogin" parent="ModelSQL" dataTable="users_login" virtual="TRUE">
+			<field id="id" dataType="Int" primaryKey="TRUE" alias="Код"/>
+			<field id="name" dataType="String" alias="Имя"/>
+			<field id="name_full" dataType="String"/>
+			<field id="role_id" dataType="String"/>
+			<field id="email" dataType="String" alias="Эл.почта"/>
+			<field id="create_dt" dataType="DateTimeTZ"/>
+			<field id="banned" dataType="Bool"/>
+			<field id="time_zone_locales_ref" dataType="JSON"/>
+			<field id="phone_cel" dataType="String"/>
+			<field id="tel_ext" dataType="String"/>
+			<field id="locale_id" dataType="String"/>
+			<field id="email_confirmed" dataType="Bool"/>
+			<field id="pwd" dataType="String"/>
+			<field id="oktmo_ref" dataType="JSON"/>
+		</model>
+		
+		<model id="UserProfile" parent="ModelSQL" dataTable="users_profile" virtual="TRUE">
+			<field id="id" dataType="Int" primaryKey="TRUE" alias="Код"/>
+			<field id="name" dataType="String" alias="Имя"/>
+			<field id="name_full" dataType="String"/>
+			<field id="email" dataType="String" alias="Эл.почта"/>
+			<field id="phone_cel" dataType="String" alias="Телефон"/>
+			<field id="locale_id" dataType="String"/>
+			<field id="time_zone_locales_ref" dataType="JSON"/>
+			<field id="tel_ext" dataType="String"/>			
+			<field id="oktmo_id" dataType="Int" refTable="oktmo" refField="id"/>
+		</model>
+		
+		<model id="Session" parent="ModelSQL" dataTable="sessions" virtual="FALSE">
+			<field id="id" dataType="String" length="128" primaryKey="TRUE" autoInc="FALSE" dbRequired="TRUE"/>
+			<field id="set_time" dataType="DateTimeTZ" defaultValue="CURRENT_TIMESTAMP"/>
+			<field id="data" dataType="Text"/>
+			<field id="session_key" dataType="String" length="128"/>
+			<field id="pub_key" dataType="String" length="15"/>
+			<field id="data_enc" dataType="Bytea"/>
+			<index id="sessions_pub_key_idx">
+				<field id="pub_key"/>
+			</index>			
+			<index id="sessions_set_time_idx">
+				<field id="set_time"/>
+			</index>
+		</model>
+		<model id="Login" parent="ModelSQL" dataTable="logins" virtual="FALSE">
+			<field id="id" dataType="Int" primaryKey="TRUE" autoInc="TRUE" required="FALSE"/>
+			<field id="date_time_in" dataType="DateTimeTZ"/>
+			<field id="date_time_out" dataType="DateTimeTZ"/>
+			<field id="ip" dataType="Text"/>
+			<field id="session_id" dataType="String" length="128"/>
+			<field id="user_id" dataType="Int"/>
+			<field id="pub_key" dataType="String" length="15"/>
+			<field id="set_date_time" dataType="DateTimeTZ"/>
+			<field id="headers" dataType="Text"/>
+			<field id="user_agent" dataType="JSONB"/>
+			<index id="logins_user_idx" unique="TRUE">
+				<field id="user_id"/>
+			</index>
+		</model>
+		<model id="LoginList" parent="ModelSQL" dataTable="logins_list" virtual="TRUE">
+			<field id="id" dataType="Int" primaryKey="TRUE" autoInc="TRUE" required="FALSE" sysCol="TRUE"/>
+			<field id="date_time_in" dataType="DateTimeTZ" alias="Дата входа"/>
+			<field id="date_time_out" dataType="DateTimeTZ" alias="Дата выхода"/>
+			<field id="ip" dataType="String" length="15" alias="IP адрес"/>
+			<field id="user_id" dataType="Int" sysCol="TRUE"/>
+			<field id="users_ref" dataType="JSON" alias="Пользователь"/>
+			<field id="pub_key" dataType="String" length="15" sysCol="TRUE"/>
+			<field id="set_date_time" dataType="DateTimeTZ" alias="Время создания сессии"/>
+			<field id="session_set_time" dataType="DateTimeTZ" alias="Время последнего обращения"/>
+			<field id="user_agent" dataType="Text"/>
+			<field id="header_user_agent" dataType="Text"/>
+		</model>
+		<model id="LoginDeviceList" parent="ModelSQL" dataTable="login_devices_list" virtual="TRUE">
+			<field id="user_id" dataType="Int" sysCol="TRUE" primaryKey="TRUE"/>
+			<field id="user_agent" dataType="Text" primaryKey="TRUE"/>
+			<field id="user_descr" dataType="String" alias="Имя пользователя"/>
+			<field id="date_time_in" dataType="DateTimeTZ" alias="Дата входа"/>
+			<field id="banned" dataType="Bool" alias="Вход запрещен"/>
+			<field id="ban_hash" dataType="String"/>
+		</model>
+		<model id="LoginDeviceBan" parent="ModelSQL" dataTable="login_device_bans" virtual="FALSE">
+			<field id="user_id" dataType="Int" sysCol="TRUE" primaryKey="TRUE"/>
+			<field id="hash" dataType="String" length="32" primaryKey="TRUE"/>
+			<field id="create_dt" dataType="DateTimeTZ" alias="Дата создания" defaultValue="CURRENT_TIMESTAMP"/>
+		</model>
+		
+		<model id="ConstantList" parent="ModelSQL" dataTable="constants_list_view" virtual="TRUE">
+			<defaultOrder>
+				<field id="name"/>
+			</defaultOrder>
+			<field id="id" dataType="String" primaryKey="TRUE"/>
+			<field id="name" dataType="String"/>
+			<field id="descr" dataType="Text"/>
+			<field id="val" dataType="Text"/>
+			<field id="val_type" dataType="Text"/>
+			<field id="ctrl_class" dataType="Text"/>
+			<field id="ctrl_options" dataType="JSON"/>
+			<field id="view_class" dataType="Text"/>
+			<field id="view_options" dataType="JSON"/>
+		</model>
+		<model id="View" parent="ModelSQL" dataTable="views" virtual="FALSE">
+			<defaultOrder>
+				<field id="section"/>
+				<field id="descr"/>
+			</defaultOrder>
+			<field id="id" dataType="Int" primaryKey="TRUE" autoInc="TRUE" required="FALSE" alias="Код"/>
+			<field id="c" dataType="Text"/>
+			<field id="f" dataType="Text"/>
+			<field id="t" dataType="Text"/>			
+			<field id="section" dataType="Text" required="TRUE"/>
+			<field id="descr" dataType="Text" required="TRUE"/>
+			<field id="limited" dataType="Bool"/>
+			<index id="views_section_descr_idx" unique="TRUE">
+				<field id="section"/>
+				<field id="descr"/>
+			</index>																		
+		</model>
+		<model id="ViewList" parent="ModelSQL" dataTable="views_list" virtual="TRUE">
+			<defaultOrder>
+				<field id="user_descr"/>
+			</defaultOrder>
+			<field id="id" dataType="Int" primaryKey="TRUE" autoInc="TRUE" required="FALSE" alias="Код"/>
+			<field id="c" dataType="Text"/>
+			<field id="f" dataType="Text"/>
+			<field id="t" dataType="Text"/>						
+			<field id="href" dataType="Text"/>
+			<field id="user_descr" dataType="Text"/>
+			<field id="section" dataType="Text"/>						
+		</model>
+		<model id="ViewSectionList" parent="ModelSQL" dataTable="views_section_list" virtual="TRUE">
+			<field id="section" dataType="Text"/>
+		</model>
+		
+		<model id="MainMenuConstructor" parent="ModelSQL" dataTable="main_menus" virtual="FALSE">
+			<defaultOrder>
+				<field id="role_id"/>
+			</defaultOrder>
+			<field id="id" dataType="Int" primaryKey="TRUE" autoInc="TRUE" required="FALSE" alias="Код"/>
+			<field id="role_id" dataType="Enum" enumId="role_types" required="TRUE"/>
+			<field id="user_id" dataType="Int" refTable="users" refField="id"/>
+			<field id="content" dataType="Text" required="TRUE" alias="Содержание"/>
+			<field id="model_content" dataType="Text" required="FALSE" alias="Содержание для модели,заполняется при записи из контроллера!"/>
+			<index id="main_menus_role_user_idx" unique="TRUE">
+				<field id="role_id"/>
+				<field id="user_id"/>
+			</index>						
+		</model>
+		
+		<model id="MainMenuConstructorList" parent="ModelSQL" dataTable="main_menus_list" virtual="TRUE">
+			<field id="id" dataType="Int" primaryKey="TRUE" sysCol="TRUE"/>
+			<field id="role_id" dataType="String"/>
+			<field id="user_id" dataType="String"/>
+			<field id="user_descr" dataType="String"/>
+		</model>
+		<model id="MainMenuConstructorDialog" parent="ModelSQL" dataTable="main_menus_dialog" virtual="TRUE">
+			<field id="id" dataType="Int" primaryKey="TRUE" sysCol="TRUE"/>
+			<field id="role_id" dataType="String"/>
+			<field id="user_id" dataType="String"/>
+			<field id="user_descr" dataType="String"/>
+			<field id="content" dataType="Text"/>
+		</model>
+		
+		<model id="MainMenuContent" parentJS="ModelXMLTree" parent="Model" virtual="TRUE" server="FALSE">
+			<field id="id" dataType="Int" primaryKey="TRUE" autoInc="TRUE"/>
+			<field id="descr" dataType="String"/>
+			<field id="viewid" dataType="String"/>
+			<field id="viewdescr" dataType="String"/>
+			<field id="default" dataType="Bool"/>
+			<field id="glyphclass" dataType="String"/>
+		</model>
+			
+		<model id="VariantStorage" parent="ModelSQL" dataTable="variant_storages" virtual="FALSE">
+			<field id="id" dataType="Int" primaryKey="TRUE" autoInc="TRUE"/>
+			<field id="user_id" dataType="Int" refTable="users" refField="id"/>
+			<field id="storage_name" dataType="Text" required="TRUE"/>
+			<field id="variant_name" dataType="Text" required="TRUE"/>
+			<field id="default_variant" dataType="Bool"/>
+			<field id="filter_data" dataType="JSONB"/>
+			<field id="col_visib_data" dataType="Text"/>
+			<field id="col_order_data" dataType="Text"/>
+			<index id="variant_storages_user_idx" unique="TRUE">
+				<field id="user_id"/>
+				<field id="storage_name"/>
+			</index>
+		</model>
+		<model id="VariantStorageList" parent="ModelSQL" dataTable="variant_storages_list" virtual="TRUE">
+			<field id="id" dataType="Int" primaryKey="TRUE"/>
+			<field id="user_id" dataType="Int" refTable="users" refField="id"/>
+			<field id="storage_name" dataType="Text"/>
+			<field id="default_variant" dataType="Bool"/>
+			<field id="variant_name" dataType="Text"/>
+		</model>
+
+		<model id="About" parent="ModelSQL" virtual="TRUE">
+			<field id="author" dataType="String"/>
+			<field id="tech_mail" dataType="String"/>
+			<field id="app_name" dataType="String"/>
+			<field id="fw_version" dataType="String"/>
+			<field id="app_version" dataType="String"/>
+			<field id="db_name" dataType="String"/>
+		</model>						
+		<model id="SrvStatistics" parent="ModelSQL" virtual="TRUE">
+			<field id="name" dataType="String"/>
+			<field id="max_client_count" dataType="Int"/>
+			<field id="client_count" dataType="Int"/>
+			<field id="downloaded_bytes" dataType="Int"/>
+			<field id="uploaded_bytes" dataType="Int"/>
+			<field id="handshakes" dataType="Int"/>
+			<field id="run_seconds" dataType="Int"/>
+		</model>						
+		
+		<model id="Client" parent="ModelSQL" dataTable="clients" virtual="FALSE">
+			<field id="id" dataType="Int" primaryKey="TRUE" autoInc="TRUE"/>
+			<field id="name" dataType="Text" required="TRUE"/>
+			<field id="inn" dataType="String" length="12" required="TRUE"/>
+			<index id="clients_name_idx" unique="TRUE">
+				<expression>lower(name)</expression>
+			</index>
+		</model>
+		
+		<model id="OKEISection" parent="ModelSQL" dataTable="okei_sections" virtual="FALSE">
+			<defaultOrder>
+				<field id="name"/>
+			</defaultOrder>
+			<field id="id" dataType="Int" primaryKey="TRUE" autoInc="TRUE"/>
+			<field id="name" dataType="String" required="TRUE" length="150"/>
+		</model>
+		<model id="OKEI" parent="ModelSQL" dataTable="okei" virtual="FALSE">
+			<defaultOrder>
+				<field id="code"/>
+			</defaultOrder>
+			<field id="code" dataType="String" primaryKey="TRUE" length="5" required="TRUE"/>
+			<field id="okei_section_id" dataType="Int" refTable="okei_sections" refField="id" required="TRUE"/>
+			<field id="name_full" dataType="Text" required="TRUE"/>
+			<field id="name_nat" dataType="String" required="TRUE" length="150"/>
+			<field id="name_internat" dataType="String" length="150"/>
+			<field id="code_nat" dataType="String" required="TRUE" length="150"/>
+			<field id="code_internat" dataType="String" required="TRUE" length="150"/>
+			<field id="name_search" dataType="Text"/>
+			<index id="okei_name_search_idx" unique="TRUE">
+				<field id="name_search"/>
+			</index>
+		</model>
+		<model id="OKEIList" parent="ModelSQL" dataTable="okei_list" virtual="TRUE">
+			<field id="code" dataType="String" primaryKey="TRUE" length="5" required="TRUE"/>
+			<field id="okei_sections_ref" dataType="JSON"/>
+			<field id="name_full" dataType="Text" required="TRUE"/>
+			<field id="name_nat" dataType="String" required="TRUE" length="150"/>
+			<field id="name_internat" dataType="String" length="150"/>
+			<field id="code_nat" dataType="String" required="TRUE" length="150"/>
+			<field id="code_internat" dataType="String" required="TRUE" length="150"/>
+			<field id="name_search" dataType="Text"/>
+		</model>
+		<model id="Material" parent="ModelSQL" dataTable="materials" virtual="FALSE">
+			<defaultOrder>
+				<field id="name"/>
+			</defaultOrder>
+			<field id="id" dataType="Int" primaryKey="TRUE" autoInc="TRUE"/>
+			<field id="name" dataType="String" required="TRUE" length="150"/>
+			<field id="name_full" dataType="Text"/>
+			<field id="okei_code" dataType="String" length="5" refTable="okei" refField="code" required="TRUE"/>
+		</model>
+		<model id="MaterialList" parent="ModelSQL" dataTable="materials_list" virtual="TRUE">
+			<defaultOrder>
+				<field id="name"/>
+			</defaultOrder>
+			<field id="id" dataType="Int" primaryKey="TRUE" autoInc="TRUE"/>
+			<field id="name" dataType="String"/>
+			<field id="name_full" dataType="Text"/>
+			<field id="okei_ref" dataType="JSON"/>
+		</model>
+		<model id="OKTMOContract" parent="ModelSQL" dataTable="oktmo_contracts" virtual="FALSE">
+			<field id="id" dataType="Int" primaryKey="TRUE" autoInc="TRUE"/>
+			<field id="name" dataType="Text" required="TRUE"/>
+			<field id="oktmo_id" dataType="Int" refTable="oktmo" refField="id" required="TRUE"/>
+			<index id="oktmo_contracts_oktmo_idx">
+				<field id="oktmo_id"/>
+			</index>
+		</model>
+		<model id="OKTMOContractList" parent="ModelSQL" dataTable="oktmo_contracts_list" virtual="TRUE">
+			<defaultOrder>
+				<field id="name"/>
+			</defaultOrder>
+			<field id="id" dataType="Int" primaryKey="TRUE" autoInc="TRUE"/>
+			<field id="oktmo_id" dataType="Int"/>
+			<field id="name" dataType="Text" required="TRUE"/>
+			<field id="oktmo_ref" dataType="JSON"/>			
+		</model>
+		<model id="DocOrder" parent="ModelSQL" dataTable="doc_orders" virtual="FALSE">
+			<field id="id" dataType="Int" primaryKey="TRUE" dbRequired="TRUE" autoInc="TRUE"/>
+			<field id="date_time" dataType="DateTimeTZ" dbRequired="TRUE" defaultValue="CURRENT_TIMESTAMP"/>
+			<field id="user_id" dataType="Int" refTable="users" refField="id" dbRequired="TRUE"/>
+			<field id="oktmo_id" dataType="Int" refTable="oktmo" refField="id"/>
+			<field id="oktmo_contract_id" dataType="Int" refTable="oktmo_contracts" refField="id" required="TRUE"/>
+			<field id="closed" dataType="Bool" defaultValue="FALSE"/>
+			<field id="closed_inf" dataType="JSONB"/>
+			<field id="materials" dataType="JSONB"/>
+			<field id="materials_search" dataType="Text"/>
+			<index id="doc_orders_date_idx">
+				<field id="date_time"/>
+			</index>
+			<index id="doc_orders_oktmo_idx">
+				<field id="oktmo_id"/>
+			</index>
+			<index id="doc_orders_oktmo_contract_idx">
+				<field id="oktmo_contract_id"/>
+			</index>
+			<index id="doc_orders_user_idx">
+				<field id="user_id"/>
+			</index>			
+			<index id="doc_orders_materials_search_idx">
+				<field id="materials_search"/>
+			</index>			
+			<registerAtcs>
+				<register id="RAMaterial"/>
+			</registerAtcs>
+		</model>
+		<model id="DocOrderList" parent="ModelSQL" dataTable="doc_orders_list" virtual="TRUE">
+			<defaultOrder>
+				<field id="date_time" sortDirect="desc"/>
+			</defaultOrder>
+			<field id="id" dataType="Int" primaryKey="TRUE" required="TRUE" autoInc="TRUE"/>
+			<field id="date_time" dataType="DateTimeTZ" required="TRUE" defaultValue="CURRENT_TIMESTAMP"/>
+			<field id="user_id" dataType="Int"/>
+			<field id="users_ref" dataType="JSON"/>
+			<field id="oktmo_id" dataType="Int"/>
+			<field id="oktmo_ref" dataType="JSON"/>
+			<field id="oktmo_contracts_ref" dataType="JSON"/>
+			<field id="oktmo_contract_id" dataType="Int"/>
+			<field id="closed" dataType="Bool"/>
+			<field id="closed_inf" dataType="JSONB"/>
+			<field id="materials_search" dataType="Text"/>
+		</model>
+		<model id="DocOrderDialog" parent="ModelSQL" dataTable="doc_orders_dialog" virtual="TRUE">
+			<field id="id" dataType="Int" primaryKey="TRUE" required="TRUE" autoInc="TRUE"/>
+			<field id="date_time" dataType="DateTimeTZ" required="TRUE" defaultValue="CURRENT_TIMESTAMP"/>
+			<field id="users_ref" dataType="JSON"/>
+			<field id="oktmo_ref" dataType="JSON"/>
+			<field id="oktmo_contracts_ref" dataType="JSON"/>
+			<field id="closed" dataType="Bool"/>
+			<field id="closed_inf" dataType="JSONB"/>
+			<field id="materials" dataType="JSON"/>
+		</model>
+		<model id="DocShipment" parent="ModelSQL" dataTable="doc_shipments" virtual="FALSE">
+			<field id="id" dataType="Int" primaryKey="TRUE" dbRequired="TRUE" autoInc="TRUE"/>
+			<field id="date_time" dataType="DateTimeTZ" dbRequired="TRUE" defaultValue="CURRENT_TIMESTAMP"/>
+			<field id="ship_date" dataType="Date"/>
+			<field id="user_id" dataType="Int" refTable="users" refField="id" dbRequired="TRUE"/>
+			<field id="oktmo_id" dataType="Int" refTable="oktmo" refField="id"/>
+			<field id="oktmo_contract_id" dataType="Int" refTable="oktmo_contracts" refField="id" required="TRUE"/>
+			<field id="barge_num" dataType="Text"/>
+			<field id="materials" dataType="JSONB"/>
+			<field id="materials_search" dataType="Text"/>
+			<field id="pallets" dataType="JSONB"/>
+			<field id="total" dataType="Float" length="15" precision="2"/>
+			<index id="doc_shipments_date_idx">
+				<field id="date_time"/>
+			</index>
+			<index id="doc_shipments_oktmo_idx">
+				<field id="oktmo_id"/>
+			</index>
+			<index id="doc_shipments_oktmo_contract_idx">
+				<field id="oktmo_contract_id"/>
+			</index>
+			<index id="doc_shipments_user_idx">
+				<field id="user_id"/>
+			</index>			
+			<index id="doc_shipments_materials_search_idx">
+				<field id="materials_search"/>
+			</index>						
+			<registerAtcs>
+				<register id="RAMaterial"/>
+			</registerAtcs>
+		</model>
+		<model id="DocShipmentList" parent="ModelSQL" dataTable="doc_shipments_list" virtual="TRUE">
+			<aggFunctions>
+				<aggFunction alias="total_total" expr="sum(total)"/>
+			</aggFunctions>		
+			<defaultOrder>
+				<field id="date_time" sortDirect="desc"/>
+			</defaultOrder>
+			<field id="id" dataType="Int" primaryKey="TRUE" required="TRUE" autoInc="TRUE"/>
+			<field id="date_time" dataType="DateTimeTZ"/>
+			<field id="ship_date" dataType="Date"/>
+			<field id="barge_num" dataType="Text"/>
+			<field id="user_id" dataType="Int"/>
+			<field id="users_ref" dataType="JSON"/>
+			<field id="oktmo_id" dataType="Int"/>
+			<field id="oktmo_ref" dataType="JSON"/>
+			<field id="oktmo_contracts_ref" dataType="JSON"/>
+			<field id="oktmo_contract_id" dataType="Int"/>
+			<field id="materials_search" dataType="Text"/>
+			<field id="total" dataType="Float" length="15" precision="2"/>
+			<field id="self_descr" dataType="String"/>
+		</model>
+		<model id="DocShipmentDialog" parent="ModelSQL" dataTable="doc_shipments_dialog" virtual="TRUE">
+			<field id="id" dataType="Int" primaryKey="TRUE" required="TRUE" autoInc="TRUE"/>
+			<field id="date_time" dataType="DateTimeTZ"/>
+			<field id="barge_num" dataType="Text"/>
+			<field id="ship_date" dataType="Date"/>
+			<field id="users_ref" dataType="JSON"/>
+			<field id="oktmo_ref" dataType="JSON"/>
+			<field id="oktmo_contracts_ref" dataType="JSON"/>
+			<field id="materials" dataType="JSON"/>
+			<field id="pallets" dataType="JSON"/>
+		</model>
+		<model id="DocPassToProduction" parent="ModelSQL" dataTable="doc_pass_to_productions" virtual="FALSE">
+			<field id="id" dataType="Int" primaryKey="TRUE" dbRequired="TRUE" autoInc="TRUE"/>
+			<field id="date_time" dataType="DateTimeTZ" dbRequired="TRUE" defaultValue="CURRENT_TIMESTAMP"/>
+			<field id="user_id" dataType="Int" refTable="users" refField="id" dbRequired="TRUE"/>
+			<field id="oktmo_id" dataType="Int" refTable="oktmo" refField="id"/>
+			<field id="oktmo_contract_id" dataType="Int" refTable="oktmo_contracts" refField="id" required="TRUE"/>
+			<field id="closed" dataType="Bool" defaultValue="FALSE"/>
+			<field id="closed_inf" dataType="JSONB"/>
+			<field id="materials" dataType="JSONB"/>
+			<field id="materials_search" dataType="Text"/>
+			<index id="doc_pass_to_productions_date_idx">
+				<field id="date_time"/>
+			</index>
+			<index id="doc_pass_to_productions_oktmo_idx">
+				<field id="oktmo_id"/>
+			</index>
+			<index id="doc_pass_to_productions_oktmo_contract_idx">
+				<field id="oktmo_contract_id"/>
+			</index>
+			<index id="doc_pass_to_productions_user_idx">
+				<field id="user_id"/>
+			</index>			
+			<index id="doc_pass_to_productions_materials_search_idx">
+				<field id="materials_search"/>
+			</index>			
+			<registerAtcs>
+				<register id="RAMaterial"/>
+			</registerAtcs>
+		</model>
+		<model id="DocPassToProductionList" parent="ModelSQL" dataTable="doc_pass_to_productions_list" virtual="TRUE">
+			<defaultOrder>
+				<field id="date_time" sortDirect="desc"/>
+			</defaultOrder>
+			<field id="id" dataType="Int" primaryKey="TRUE" required="TRUE" autoInc="TRUE"/>
+			<field id="date_time" dataType="DateTimeTZ"/>
+			<field id="user_id" dataType="Int"/>
+			<field id="users_ref" dataType="JSON"/>
+			<field id="oktmo_id" dataType="Int"/>
+			<field id="oktmo_ref" dataType="JSON"/>
+			<field id="oktmo_contracts_ref" dataType="JSON"/>
+			<field id="oktmo_contract_id" dataType="Int"/>
+			<field id="closed" dataType="Bool"/>
+			<field id="closed_inf" dataType="JSONB"/>
+			<field id="materials_search" dataType="Text"/>
+		</model>
+		<model id="DocPassToProductionDialog" parent="ModelSQL" dataTable="doc_pass_to_productions_dialog" virtual="TRUE">
+			<field id="id" dataType="Int" primaryKey="TRUE" required="TRUE" autoInc="TRUE"/>
+			<field id="date_time" dataType="DateTimeTZ" required="TRUE" defaultValue="CURRENT_TIMESTAMP"/>
+			<field id="users_ref" dataType="JSON"/>
+			<field id="oktmo_ref" dataType="JSON"/>
+			<field id="oktmo_contracts_ref" dataType="JSON"/>
+			<field id="closed" dataType="Bool"/>
+			<field id="closed_inf" dataType="JSONB"/>
+			<field id="materials" dataType="JSON"/>
+		</model>
+		<model id="DocMovement" parent="ModelSQL" dataTable="doc_movements" virtual="FALSE">
+			<field id="id" dataType="Int" primaryKey="TRUE" dbRequired="TRUE" autoInc="TRUE"/>
+			<field id="date_time" dataType="DateTimeTZ" dbRequired="TRUE" defaultValue="CURRENT_TIMESTAMP"/>
+			<field id="user_id" dataType="Int" refTable="users" refField="id" dbRequired="TRUE"/>
+			<field id="oktmo_id" dataType="Int" refTable="oktmo" refField="id"/>
+			<field id="oktmo_contract_id" dataType="Int" refTable="oktmo_contracts" refField="id" required="TRUE"/>
+			<field id="to_oktmo_id" dataType="Int" refTable="oktmo" refField="id"/>
+			<field id="to_oktmo_contract_id" dataType="Int" refTable="oktmo_contracts" refField="id" required="TRUE"/>			
+			<field id="closed" dataType="Bool" defaultValue="FALSE"/>
+			<field id="closed_inf" dataType="JSONB"/>
+			<field id="materials" dataType="JSONB"/>
+			<field id="materials_search" dataType="Text"/>
+			<index id="doc_movements_date_idx">
+				<field id="date_time"/>
+			</index>
+			<index id="doc_movements_oktmo_idx">
+				<field id="oktmo_id"/>
+			</index>
+			<index id="doc_movements_oktmo_contract_idx">
+				<field id="oktmo_contract_id"/>
+			</index>
+			<index id="doc_movements_to_oktmo_idx">
+				<field id="to_oktmo_id"/>
+			</index>
+			<index id="doc_movements_to_oktmo_contract_idx">
+				<field id="to_oktmo_contract_id"/>
+			</index>
+			<index id="doc_movements_user_idx">
+				<field id="user_id"/>
+			</index>			
+			<index id="doc_movements_materials_search_idx">
+				<field id="materials_search"/>
+			</index>			
+			<registerAtcs>
+				<register id="RAMaterial"/>
+			</registerAtcs>
+			
+		</model>
+		<model id="DocMovementList" parent="ModelSQL" dataTable="doc_movements_list" virtual="TRUE">
+			<defaultOrder>
+				<field id="date_time" sortDirect="desc"/>
+			</defaultOrder>
+			<field id="id" dataType="Int" primaryKey="TRUE" required="TRUE" autoInc="TRUE"/>
+			<field id="date_time" dataType="DateTimeTZ" required="TRUE" defaultValue="CURRENT_TIMESTAMP"/>
+			<field id="user_id" dataType="Int"/>
+			<field id="users_ref" dataType="JSON"/>
+			<field id="oktmo_id" dataType="Int"/>
+			<field id="oktmo_ref" dataType="JSON"/>
+			<field id="to_oktmo_id" dataType="Int"/>
+			<field id="to_oktmo_ref" dataType="JSON"/>
+			<field id="oktmo_contracts_ref" dataType="JSON"/>
+			<field id="oktmo_contract_id" dataType="Int"/>
+			<field id="to_oktmo_contracts_ref" dataType="JSON"/>
+			<field id="to_oktmo_contract_id" dataType="Int"/>
+			<field id="closed" dataType="Bool"/>
+			<field id="closed_inf" dataType="JSONB"/>
+			<field id="materials_search" dataType="Text"/>
+		</model>
+		<model id="DocMovementDialog" parent="ModelSQL" dataTable="doc_movements_dialog" virtual="TRUE">
+			<field id="id" dataType="Int" primaryKey="TRUE" required="TRUE" autoInc="TRUE"/>
+			<field id="date_time" dataType="DateTimeTZ" required="TRUE" defaultValue="CURRENT_TIMESTAMP"/>
+			<field id="users_ref" dataType="JSON"/>
+			<field id="oktmo_ref" dataType="JSON"/>
+			<field id="to_oktmo_ref" dataType="JSON"/>
+			<field id="oktmo_contracts_ref" dataType="JSON"/>
+			<field id="to_oktmo_contracts_ref" dataType="JSON"/>
+			<field id="closed" dataType="Bool"/>
+			<field id="closed_inf" dataType="JSONB"/>
+			<field id="materials" dataType="JSON"/>
+		</model>
+		<model id="DocMaterialList" parentJS="ModelJSON" virtual="TRUE" server="FALSE">
+			<field id="id" dataType="Int" primaryKey="TRUE" autoInc="TRUE"/>
+			<field id="materials_ref" dataType="JSON"/>
+			<field id="quant" dataType="Float" length="19" precision="4"/>
+			<field id="price" dataType="Float" length="15" precision="2"/>
+			<field id="total" dataType="Float" length="15" precision="2"/>
+		</model>
+		<model id="Store" parent="ModelSQL" dataTable="stores" virtual="FALSE">
+			<field id="id" dataType="Int" primaryKey="TRUE" autoInc="TRUE"/>
+			<field id="name" dataType="Text" required="TRUE"/>
+			<field id="oktmo_contract_id" dataType="Int" refTable="oktmo" refField="id"/>
+			<predefinedItems>
+				<predefinedItem alias="base">
+					<id>1</id>
+					<name>Тюмень</name>
+				</predefinedItem>
+				<predefinedItem alias="in_route">
+					<id>2</id>
+					<name>В пути</name>
+				</predefinedItem>
+			</predefinedItems>
+		</model>
+		<model id="StoreList" parent="ModelSQL" dataTable="stores_list" virtual="TRUE">
+			<field id="id" dataType="Int" primaryKey="TRUE"/>
+			<field id="name" dataType="Text"/>
+			<field id="oktmo_contracts_ref" dataType="JSON"/>
+		</model>
+		<model id="RGMaterial" parent="ModelSQL" dataTable="rg_materials" virtual="FALSE" modelType="RG" period="1 month">
+			<defaultOrder>
+				<field id="date_time"/>
+			</defaultOrder>
+			<field id="id" dataType="Int" primaryKey="TRUE" autoInc="TRUE" required="FALSE" alias="Код"/>
+			<field id="date_time" dataType="DateTimeTZ" required="TRUE" alias="Период"/>
+			<field id="store_id" dataType="Int" alias="Склад" refTable="stores" refField="id"/>
+			<field id="material_id" dataType="Int" alias="Материал" refTable="materials" refField="id"/>			
+			<field id="quant" dataType="Float" alias="Количество" length="19" precision="3"/>
+			<field id="total" dataType="Float" alias="Стоимость" length="15" precision="2"/>
+			<index id="rg_materials_date_time_idx">
+				<field id="date_time"/>
+			</index>
+			<index id="rg_materials_material_idx">
+				<field id="material_id"/>
+			</index>
+			<index id="rg_materials_store_idx">
+				<field id="store_id"/>
+			</index>
+			
+		</model>
+		<model id="RAMaterial" parent="ModelSQL" dataTable="ra_materials" virtual="FALSE" modelType="RA" regTypeId="material">
+			<defaultOrder>
+				<field id="date_time"/>
+			</defaultOrder>
+			<field id="id" dataType="Int" primaryKey="TRUE" autoInc="TRUE" required="FALSE" alias="Код"/>
+			<field id="date_time" dataType="DateTimeTZ" required="TRUE" alias="Период"/>
+			<field id="deb" dataType="Bool" alias="Дебет"/>
+			<field id="doc_type" dataType="Enum" enumId="doc_types" alias="Вид документа" required="TRUE"/>
+			<field id="doc_id" dataType="Int"/>
+			<field id="store_id" dataType="Int" alias="Склад" refTable="stores" refField="id" regFieldType="dimension" required="TRUE"/>
+			<field id="material_id" dataType="Int" alias="Материал" refTable="materials" refField="id" regFieldType="dimension" required="TRUE"/>			
+			<field id="quant" dataType="Float" alias="Количество" length="19" precision="3" regFieldType="fact"/>
+			<field id="total" dataType="Float" alias="Стоимость" length="15" precision="2" regFieldType="fact"/>
+			<index id="ra_materials_date_time_index">
+				<field id="date_time"/>
+			</index>
+			<index id="ra_materials_doc_index">
+				<field id="doc_type"/>
+				<field id="doc_id"/>
+			</index>
+			<index id="ra_materials_material_idx">
+				<field id="material_id"/>
+			</index>
+			<index id="ra_materials_store_idx">
+				<field id="store_id"/>
+			</index>			
+		</model>
+		
+		<model id="RGOrder" parent="ModelSQL" dataTable="rg_orders" virtual="FALSE" modelType="RG" period="1 month">
+			<defaultOrder>
+				<field id="date_time"/>
+			</defaultOrder>
+			<field id="id" dataType="Int" primaryKey="TRUE" autoInc="TRUE" required="FALSE" alias="Код"/>
+			<field id="date_time" dataType="DateTimeTZ" required="TRUE" alias="Период"/>
+			<field id="oktmo_contract_id" dataType="Int" alias="ОКТМО" refTable="oktmo_contracts" refField="id"/>
+			<field id="material_id" dataType="Int" alias="Материал" refTable="materials" refField="id" regFieldType="dimension" required="TRUE"/>			
+			<field id="quant" dataType="Float" alias="Количество" length="19" precision="3"/>
+			<index id="rg_orders_date_time_idx">
+				<field id="date_time"/>
+			</index>
+			<index id="rg_orders_material_idx">
+				<field id="material_id"/>
+			</index>
+			<index id="rg_orders_oktmo_contract_idx">
+				<field id="oktmo_contract_id"/>
+			</index>
+			
+		</model>
+		<model id="RAOrder" parent="ModelSQL" dataTable="ra_orders" virtual="FALSE" modelType="RA" regTypeId="order">
+			<defaultOrder>
+				<field id="date_time"/>
+			</defaultOrder>
+			<field id="id" dataType="Int" primaryKey="TRUE" autoInc="TRUE" required="FALSE" alias="Код"/>
+			<field id="date_time" dataType="DateTimeTZ" required="TRUE" alias="Период"/>
+			<field id="deb" dataType="Bool" alias="Дебет"/>
+			<field id="doc_type" dataType="Enum" enumId="doc_types" alias="Вид документа" required="TRUE"/>
+			<field id="doc_id" dataType="Int"/>
+			<field id="oktmo_contract_id" dataType="Int" alias="ОКТМО" refTable="oktmo_contracts" refField="id"/>
+			<field id="material_id" dataType="Int" alias="Материал" refTable="materials" refField="id" regFieldType="dimension" required="TRUE"/>			
+			<field id="quant" dataType="Float" alias="Количество" length="19" precision="3" regFieldType="fact"/>
+			<index id="ra_orders_date_time_index">
+				<field id="date_time"/>
+			</index>
+			<index id="ra_orders_doc_index">
+				<field id="doc_type"/>
+				<field id="doc_id"/>
+			</index>
+			<index id="ra_orders_material_idx">
+				<field id="material_id"/>
+			</index>
+			<index id="ra_orders_oktmo_contract_idx">
+				<field id="oktmo_contract_id"/>
+			</index>			
+		</model>
+		
+		<model id="DocProcurement" parent="ModelSQL" dataTable="doc_procurements" virtual="FALSE">
+			<field id="id" dataType="Int" primaryKey="TRUE" dbRequired="TRUE" autoInc="TRUE"/>
+			<field id="date_time" dataType="DateTimeTZ" dbRequired="TRUE" defaultValue="CURRENT_TIMESTAMP"/>
+			<field id="user_id" dataType="Int" refTable="users" refField="id" dbRequired="TRUE"/>
+			<field id="materials" dataType="JSONB"/>
+			<field id="materials_search" dataType="Text"/>
+			<field id="total" dataType="Float" length="15" precision="2"/>
+			<index id="doc_procurements_date_idx">
+				<field id="date_time"/>
+			</index>
+			<index id="doc_procurements_user_idx">
+				<field id="user_id"/>
+			</index>			
+			<index id="doc_procurements_materials_search_idx">
+				<field id="materials_search"/>
+			</index>						
+		</model>
+		<model id="DocProcurementList" parent="ModelSQL" dataTable="doc_procurements_list" virtual="TRUE">
+			<aggFunctions>
+				<aggFunction alias="total_total" expr="sum(total)"/>
+			</aggFunctions>		
+			<defaultOrder>
+				<field id="date_time" sortDirect="desc"/>
+			</defaultOrder>
+			<field id="id" dataType="Int" primaryKey="TRUE" required="TRUE" autoInc="TRUE"/>
+			<field id="date_time" dataType="DateTimeTZ" required="TRUE" defaultValue="CURRENT_TIMESTAMP"/>
+			<field id="user_id" dataType="Int"/>
+			<field id="users_ref" dataType="JSON"/>
+			<field id="materials_search" dataType="Text"/>
+			<field id="total" dataType="Float" length="15" precision="2"/>
+			<field id="self_descr" dataType="String"/>
+		</model>
+		<model id="DocProcurementDialog" parent="ModelSQL" dataTable="doc_procurements_dialog" virtual="TRUE">
+			<field id="id" dataType="Int" primaryKey="TRUE" required="TRUE" autoInc="TRUE"/>
+			<field id="date_time" dataType="DateTimeTZ" required="TRUE" defaultValue="CURRENT_TIMESTAMP"/>
+			<field id="users_ref" dataType="JSON"/>
+			<field id="materials" dataType="JSON"/>
+		</model>
+		<model id="MaterialActionList" parent="ModelSQL" dataTable="materials_actions" virtual="TRUE">			
+			<field id="material_id" dataType="Int"/>
+			<field id="material_descr" dataType="String"/>
+			<field id="beg_quant" dataType="Float"/>
+			<field id="beg_total" dataType="Float"/>
+			<field id="deb_quant" dataType="Float"/>
+			<field id="deb_total" dataType="Float"/>
+			<field id="kred_quant" dataType="Float"/>
+			<field id="kred_total" dataType="Float"/>
+			<field id="end_quant" dataType="Float"/>
+			<field id="end_total" dataType="Float"/>
+			
+		</model>
+		
+	</models>
+	
+	<constants>
+		<constant id="doc_per_page_count" name="Количество документов на странице" descr="Количество документов на странице в журнале документов" dataType="Int" defaultValue="60" autoload="TRUE"/>
+		<constant id="grid_refresh_interval" name="Период обновления таблиц" descr="Период обновления таблиц в секундах" dataType="Int" defaultValue="15" autoload="TRUE"/>
+		<constant id="session_live_time" name="Время жизни сессии" descr="Время, в течении которого сессия не будет удаляться на сервере" dataType="Interval" defaultValue="48:00" viewOptions="{&quot;dateFormat&quot;:&quot;H:i&quot;}" ctrlOptions="{&quot;editMask&quot;:&quot;99:99&quot;}"/>
+	</constants>
+	
+	<controllers>	
+		<controller id="Event" parentId="ControllerSQL">
+			<publicMethod id="subscribe">
+				<field id="events" dataType="Array" required="TRUE"/>
+			</publicMethod>
+			<publicMethod id="unsubscribe">
+				<field id="events" dataType="Array" required="TRUE"/>
+			</publicMethod>
+			<publicMethod id="publish">
+				<field id="events" dataType="Array" required="TRUE"/>
+			</publicMethod>
+		</controller>
+	
+		<controller id="Constant" parentId="ControllerSQL">
+			<publicMethod id="set_value">
+				<field id="id" dataType="String" required="TRUE"/>
+				<field id="val" dataType="String"/>
+			</publicMethod>
+			<publicMethod id="get_list" modelId="ConstantList"/>
+			<publicMethod id="get_object" modelId="ConstantList"/>
+			<publicMethod id="get_values">
+				<field id="id_list" dataType="String" required="TRUE"/>
+				<field id="field_sep" dataType="String" length="1"/>
+			</publicMethod>
+		</controller>
+		<controller id="MainMenuConstructor" parentId="ControllerSQL">
+			<publicMethod id="insert" modelId="MainMenuConstructor"/>
+			<publicMethod id="update" modelId="MainMenuConstructor"/>
+			<publicMethod id="delete" modelId="MainMenuConstructor"/>
+			<publicMethod id="get_list" modelId="MainMenuConstructorList"/>
+			<publicMethod id="get_object" modelId="MainMenuConstructorDialog"/>
+		</controller>
+		<controller id="MainMenuContent" parentIdJS="ControllerObjClient" server="FALSE">
+			<publicMethod id="insert" modelId="MainMenuContent"/>
+			<publicMethod id="update" modelId="MainMenuContent"/>
+			<publicMethod id="delete" modelId="MainMenuContent"/>
+			<publicMethod id="get_list" modelId="MainMenuContent"/>
+			<publicMethod id="get_object" modelId="MainMenuContent"/>
+		</controller>
+		
+		<controller id="View" parentId="ControllerSQL">
+			<publicMethod id="get_list" modelId="ViewList"/>
+			<publicMethod id="complete" modelId="ViewList" patternFieldId="user_descr"/>
+			<publicMethod id="get_section_list" modelId="ViewSectionList"/>
+		</controller>				
+		<controller id="VariantStorage" parentId="ControllerSQL">
+			<publicMethod id="insert" modelId="VariantStorage"/>
+			<publicMethod id="upsert_filter_data" modelId="VariantStorage">
+				<field id="storage_name" dataType="String" required="TRUE"/>
+				<field id="variant_name" dataType="String" required="TRUE"/>
+				<field id="filter_data" dataType="String" required="TRUE"/>
+				<field id="default_variant" dataType="Bool" required="TRUE"/>
+			</publicMethod>			
+			<publicMethod id="upsert_col_visib_data" modelId="VariantStorage">
+				<field id="storage_name" dataType="String" required="TRUE"/>
+				<field id="variant_name" dataType="String" required="TRUE"/>
+				<field id="col_visib" dataType="String" required="TRUE"/>
+				<field id="default_variant" dataType="Bool" required="TRUE"/>
+			</publicMethod>			
+			<publicMethod id="upsert_col_order_data" modelId="VariantStorage">
+				<field id="storage_name" dataType="String" required="TRUE"/>
+				<field id="variant_name" dataType="String" required="TRUE"/>
+				<field id="col_order" dataType="String" required="TRUE"/>
+				<field id="default_variant" dataType="Bool" required="TRUE"/>
+			</publicMethod>						
+			<publicMethod id="update" modelId="VariantStorage"/>
+			<publicMethod id="delete" modelId="VariantStorage"/>
+			<publicMethod id="get_list">
+				<field id="storage_name" dataType="String" required="TRUE"/>
+				<field id="variant_name" dataType="String"/>
+			</publicMethod>
+			<publicMethod id="get_object" modelId="VariantStorage"/>
+			<publicMethod id="get_filter_data" modelId="VariantStorage">
+				<field id="storage_name" dataType="String" required="TRUE"/>
+				<field id="variant_name" dataType="String"/>
+			</publicMethod>
+			<publicMethod id="get_col_visib_data" modelId="VariantStorage">
+				<field id="storage_name" dataType="String" required="TRUE"/>
+				<field id="variant_name" dataType="String"/>
+			</publicMethod>			
+			<publicMethod id="get_col_order_data" modelId="VariantStorage">
+				<field id="storage_name" dataType="String" required="TRUE"/>
+				<field id="variant_name" dataType="String"/>
+			</publicMethod>			
+		</controller>		
+
+		<controller id="About" parentId="ControllerSQL">
+			<publicMethod id="get_object" modelId="About"/>
+		</controller>		
+		<controller id="SrvStatistics" parentId="ControllerSQL">
+			<publicMethod id="get_statistics" modelId="SrvStatistics"/>
+		</controller>		
+	
+		<controller id="User" parentId="ControllerSQL" noState="FALSE">
+			<publicMethod id="insert" modelId="User"/>
+			<publicMethod id="update" modelId="User"/>
+			<publicMethod id="delete" modelId="User"/>
+			<publicMethod id="get_list" modelId="UserList"/>
+			<publicMethod id="get_object" modelId="UserDialog"/>
+			<publicMethod id="complete" modelId="UserList" patternFieldId="name"/>
+			<publicMethod id="get_profile" modelId="UserProfile"/>
+			<publicMethod id="reset_pwd">
+				<field id="user_id" dataType="Int" required="TRUE"/>
+			</publicMethod>
+			<publicMethod id="login">
+				<field id="name" dataType="String" alias="Имя пользователя" length="50" required="TRUE"/>
+				<field id="pwd" dataType="Password" alias="Пароль" length="20" required="TRUE"/>
+				<field id="width_type" dataType="String" length="2"/>
+			</publicMethod>
+			<publicMethod id="login_refresh">
+				<field id="refresh_token" dataType="String" required="true" length="50"/>
+			</publicMethod>						
+			<publicMethod id="login_token">
+				<field id="token" dataType="String" required="true" length="50"/>
+			</publicMethod>									
+			<publicMethod id="logout"/>
+			<publicMethod id="logout_html"/>
+		</controller>	
+		<controller id="Login" parentId="ControllerSQL" state="TRUE" noState="TRUE">
+			<publicMethod id="get_list" modelId="LoginList"/>
+			<publicMethod id="get_object" modelId="LoginList"/>
+		</controller>
+		<controller id="TimeZoneLocale" parentId="ControllerSQL" state="TRUE" noState="TRUE">
+			<publicMethod id="insert" modelId="TimeZoneLocale"/>
+			<publicMethod id="update" modelId="TimeZoneLocale"/>
+			<publicMethod id="delete" modelId="TimeZoneLocale"/>
+			<publicMethod id="get_list" modelId="TimeZoneLocale"/>
+			<publicMethod id="get_object" modelId="TimeZoneLocale"/>
+		</controller>
+		<controller id="Client" parentId="ControllerSQL" state="TRUE" noState="TRUE">
+			<publicMethod id="insert" modelId="Client"/>
+			<publicMethod id="update" modelId="Client"/>
+			<publicMethod id="delete" modelId="Client"/>
+			<publicMethod id="get_list" modelId="Client"/>
+			<publicMethod id="get_object" modelId="Client"/>
+		</controller>
+		<controller id="OKEISection" parentId="ControllerSQL">
+			<publicMethod id="get_list" modelId="OKEISection"/>
+			<publicMethod id="get_object" modelId="OKEISection"/>
+		</controller>
+		<controller id="OKEI" parentId="ControllerSQL">
+			<publicMethod id="get_list" modelId="OKEIList"/>
+			<publicMethod id="get_object" modelId="OKEIList"/>
+			<publicMethod id="complete" modelId="OKEIList" patternFieldId="name_search"/>
+		</controller>
+		<controller id="Material" parentId="ControllerSQL">
+			<publicMethod id="insert" modelId="Material"/>
+			<publicMethod id="update" modelId="Material"/>
+			<publicMethod id="delete" modelId="Material"/>
+			<publicMethod id="get_list" modelId="MaterialList"/>
+			<publicMethod id="get_object" modelId="MaterialList"/>
+			<publicMethod id="complete" modelId="MaterialList" patternFieldId="name"/>
+			<publicMethod id="get_material_action">
+				<field id="cond_fields" dataType="String"/>
+				<field id="cond_vals" dataType="String"/>
+				<field id="cond_ic" dataType="String"/>
+				<field id="cond_sgns" dataType="String"/>
+				<field id="ord_fields" dataType="String"/>
+				<field id="ord_directs" dataType="String"/>
+				<field id="field_sep" dataType="String"/>
+				<field id="templ" dataType="String"/>
+				<field id="inline" dataType="Int"/>				
+			</publicMethod>
+		</controller>
+		<controller id="OKTMO" parentId="ControllerSQL">
+			<publicMethod id="insert" modelId="OKTMO"/>
+			<publicMethod id="update" modelId="OKTMO"/>
+			<publicMethod id="delete" modelId="OKTMO"/>
+			<publicMethod id="get_list" modelId="OKTMO"/>
+			<publicMethod id="get_object" modelId="OKTMO"/>
+		</controller>
+		<controller id="OKTMOContract" parentId="ControllerSQL">
+			<publicMethod id="insert" modelId="OKTMOContract"/>
+			<publicMethod id="update" modelId="OKTMOContract"/>
+			<publicMethod id="delete" modelId="OKTMOContract"/>
+			<publicMethod id="get_list" modelId="OKTMOContractList"/>
+			<publicMethod id="get_object" modelId="OKTMOContractList"/>
+		</controller>
+		<controller id="DocOrder" parentId="ControllerSQL">
+			<publicMethod id="insert" modelId="DocOrder"/>
+			<publicMethod id="update" modelId="DocOrder"/>
+			<publicMethod id="delete" modelId="DocOrder"/>
+			<publicMethod id="get_list" modelId="DocOrderList"/>
+			<publicMethod id="get_object" modelId="DocOrderDialog"/>
+		</controller>
+		<controller id="DocShipment" parentId="ControllerSQL">
+			<publicMethod id="insert" modelId="DocShipment"/>
+			<publicMethod id="update" modelId="DocShipment"/>
+			<publicMethod id="delete" modelId="DocShipment"/>
+			<publicMethod id="get_list" modelId="DocShipmentList"/>
+			<publicMethod id="get_object" modelId="DocShipmentDialog"/>
+			<publicMethod id="complete" modelId="DocShipmentList" patternFieldId="self_descr"/>
+		</controller>
+		<controller id="DocPassToProduction" parentId="ControllerSQL">
+			<publicMethod id="insert" modelId="DocPassToProduction"/>
+			<publicMethod id="update" modelId="DocPassToProduction"/>
+			<publicMethod id="delete" modelId="DocPassToProduction"/>
+			<publicMethod id="get_list" modelId="DocPassToProductionList"/>
+			<publicMethod id="get_object" modelId="DocPassToProductionDialog"/>
+		</controller>
+		<controller id="DocMovement" parentId="ControllerSQL">
+			<publicMethod id="insert" modelId="DocMovement"/>
+			<publicMethod id="update" modelId="DocMovement"/>
+			<publicMethod id="delete" modelId="DocMovement"/>
+			<publicMethod id="get_list" modelId="DocMovementList"/>
+			<publicMethod id="get_object" modelId="DocMovementDialog"/>
+		</controller>
+		<controller id="DocMaterial" parentIdJS="ControllerObjClient" server="FALSE">
+			<publicMethod id="insert" modelId="DocMaterialList"/>
+			<publicMethod id="update" modelId="DocMaterialList"/>
+			<publicMethod id="delete" modelId="DocMaterialList"/>
+			<publicMethod id="get_list" modelId="DocMaterialList"/>
+			<publicMethod id="get_object" modelId="DocMaterialList"/>
+		</controller>
+		<controller id="DocProcurement" parentId="ControllerSQL">
+			<publicMethod id="insert" modelId="DocProcurement"/>
+			<publicMethod id="update" modelId="DocProcurement"/>
+			<publicMethod id="delete" modelId="DocProcurement"/>
+			<publicMethod id="get_list" modelId="DocProcurementList"/>
+			<publicMethod id="get_object" modelId="DocProcurementDialog"/>
+			<publicMethod id="complete" modelId="DocProcurementList" patternFieldId="self_descr"/>
+		</controller>
+		
+		<controller id="Store" parentId="ControllerSQL">
+			<publicMethod id="insert" modelId="Store"/>
+			<publicMethod id="update" modelId="Store"/>
+			<publicMethod id="delete" modelId="Store"/>
+			<publicMethod id="get_list" modelId="StoreList"/>
+			<publicMethod id="get_object" modelId="StoreList"/>
+		</controller>
+		
+	</controllers>
+	
+	<permissions>
+		<permission type="allow" controllerId="all" methodId="all" roleId="admin"/>
+		<permission type="allow" controllerId="User" methodId="login" roleId="guest"/>
+	</permissions>
+	
+	<views>
+		<view id="10000" c="User_Controller" t="UserList" f="get_list" section="Справочники" descr="Пользователи"/>
+		<view id="10001" c="Client_Controller" t="ClientList" f="get_list" section="Справочники" descr="Контрагенты"/>
+		<view id="10002" c="OKEI_Controller" t="OKEIList" f="get_list" section="Справочники" descr="Единицы измерения"/>
+		<view id="10003" c="Material_Controller" t="MaterialList" f="get_list" section="Справочники" descr="Материалы"/>
+		<view id="10004" c="OKTMO_Controller" t="OKTMOList" f="get_list" section="Справочники" descr="ОКТМО"/>
+		<view id="10005" c="OKTMOContract_Controller" t="OKTMOContractList" f="get_list" section="Справочники" descr="Контракты ОКТМО"/>
+		<view id="10006" c="Store_Controller" t="StoreList" f="get_list" section="Справочники" descr="Склады"/>
+		
+		<view id="20000" c="DocOrder_Controller" t="DocOrderList" f="get_list" section="Документы" descr="Заказы материалов"/>
+		<view id="20001" c="DocShipment_Controller" t="DocShipmentList" f="get_list" section="Документы" descr="Отгрузка материалов"/>
+		<view id="20002" c="DocPassToProduction_Controller" t="DocPassToProductionList" f="get_list" section="Документы" descr="Передача материалов в производство"/>
+		<view id="20003" c="DocMovement_Controller" t="DocMovementList" f="get_list" section="Документы" descr="Перемещение материалов"/>
+		<view id="20005" c="DocProcurement_Controller" t="DocProcurementList" f="get_list" section="Документы" descr="Поступление материалов"/>
+		
+		<view id="30000" t="RepMaterialAction" section="Отчеты" descr="Движение материалов"/>
+		
+		<view id="40000" c="Constant_Controller" t="ConstantList" f="get_list" section="Константы" descr="Все константы"/>
+	</views>
+	
+	<serverTemplates>
+		<serverTemplate id="About"/>
+		<serverTemplate id="ConstantList" class="list"/>
+		<serverTemplate id="MainMenuConstructorList" class="list"/>		
+		<serverTemplate id="ViewList" class="list"/>	
+		<serverTemplate id="UserList" class="list"/>
+		<serverTemplate id="OKEIList" class="list"/>
+		<serverTemplate id="MaterialList" class="list"/>
+		<serverTemplate id="OKTMOList" class="list"/>
+		<serverTemplate id="OKTMOContractList" class="list"/>
+		<serverTemplate id="DocOrderList" class="list"/>
+		<serverTemplate id="DocProcurementList" class="list"/>
+		<serverTemplate id="DocShipmentList" class="list"/>
+		<serverTemplate id="DocPassToProductionList" class="list"/>
+		<serverTemplate id="DocMovementList" class="list"/>
+		<serverTemplate id="StoreList" class="list"/>
+	</serverTemplates>
+	
+	<jsTemplates>
+		<jsTemplate id="FatalException" file="tmpl/FatalException.html"/>
+		<jsTemplate id="DbException" file="tmpl/DbException.html"/>
+		<jsTemplate id="VersException" file="tmpl/VersException.html"/>
+		<jsTemplate id="GridCmdContainerAjx" file="controls/tmpl/GridCmdContainerAjx.html"/>
+		<jsTemplate id="ViewGridColManager" file="controls/tmpl/ViewGridColManager.html"/>
+		<jsTemplate id="PopOver" file="controls/tmpl/PopOver.html"/>
+		<jsTemplate id="GridCmdFilterView" file="controls/tmpl/GridCmdFilterView.html"/>
+		<jsTemplate id="EditPeriodDate" file="controls/tmpl/EditPeriodDate.html"/>
+		<jsTemplate id="WindowPrint" file="controls/tmpl/WindowPrint.html"/>
+		<jsTemplate id="VariantStorageSaveView" file="controls/tmpl/VariantStorageSaveView.html"/>
+		<jsTemplate id="VariantStorageOpenView" file="controls/tmpl/VariantStorageOpenView.html"/>
+		
+	</jsTemplates>
+	
+	<packages>
+	</packages>
+	
+	<sqlScripts>
+		<sqlScript file="sess_enc_read.sql"/>
+		<sqlScript file="sess_enc_write.sql"/>
+		<sqlScript file="sess_gc.sql"/>
+		<sqlScript file="variant_storages_upsert_col_order_data.sql"/>
+		<sqlScript file="variant_storages_upsert_col_visib_data.sql"/>
+		<sqlScript file="variant_storages_upsert_filter_data.sql"/>
+		<sqlScript file="users_view.sql"/>
+		<sqlScript file="init_db.sql"/>
+	</sqlScripts>
+	
+	<jsScripts>
+		<jsScript file="ext/jquery-1.12.4/jquery-1.12.4.min.js" compressed="TRUE" standalone="TRUE"/>
+		<jsScript file="ext/bootstrap-3.3.6/bootstrap.min.js" compressed="TRUE" standalone="TRUE" version="1.0"/>
+		<jsScript file="ext/bootstrap-datepicker/bootstrap-datepicker.min.js" compressed="TRUE" standalone="TRUE" version="1.0"/>
+		<jsScript file="ext/bootstrap-datepicker/bootstrap-datepicker.ru.min.js" compressed="TRUE" standalone="TRUE" version="1.0"/>
+		<jsScript file="ext/startbootstrap-sb-admin-2-1.0.8/bower_components/metisMenu/dist/metisMenu.min.js" compressed="TRUE" standalone="TRUE" version="1.0"/>
+		<jsScript file="ext/startbootstrap-sb-admin-2-1.0.8/bower_components/raphael/raphael-min.js" compressed="TRUE" standalone="TRUE" version="1.0"/>
+		<jsScript file="ext/startbootstrap-sb-admin-2-1.0.8/bower_components/morrisjs/morris.min.js" compressed="TRUE" standalone="TRUE" version="1.0"/>		
+		<jsScript file="ext/startbootstrap-sb-admin-2-1.0.8/dist/js/sb-admin-2.js" compressed="TRUE" standalone="TRUE" version="1.0"/>
+
+		<jsScript file="jquery.maskedinput.js" compressed="FALSE" standalone="FALSE" version="1.0"/>
+		<jsScript file="ext/cleave/cleave.min.js" compressed="TRUE" standalone="TRUE" version="1.6"/>
+		<jsScript file="ext/cleave/cleave-phone.ru.js" compressed="TRUE" standalone="TRUE" version="1.6"/>
+	
+		<jsScript file="ext/jshash-2.2/md5-min.js" compressed="TRUE" standalone="TRUE"/>
+		
+		<jsScript file="ext/mustache/mustache.min.js" compressed="TRUE" standalone="TRUE"/>
+
+		<!--Drag && Drop-->
+		<jsScript file="ext/DragnDrop/DragMaster.js"/>
+		<jsScript file="ext/DragnDrop/DragObject.js"/>
+		<jsScript file="ext/DragnDrop/DropTarget.js"/>		
+
+		<!-- core -->
+		<jsScript file="core/extend.js"/>		
+		<jsScript file="core/App.js"/>
+		<jsScript file="core/AppWin.js"/>				
+		<jsScript file="core/CommonHelper.js"/>
+		<jsScript file="core/DOMHelper.js"/>
+		<jsScript file="core/DateHelper.js"/>
+		<jsScript file="core/EventHelper.js"/>		
+		<jsScript file="core/FatalException.js"/>
+		<jsScript file="core/DbException.js"/>
+		<jsScript file="core/VersException.js"/>		
+		<jsScript file="core/ConstantManager.js"/>
+		
+		<jsScript file="core/CookieManager.js"/>
+		<jsScript file="core/ServConnector.js"/>
+		<jsScript file="core/AppSrv.js"/>
+		<jsScript file="core/AppSrv.rs_ru.js" resource="ru"/>
+		<jsScript file="core/Response.js"/>
+		<jsScript file="core/ResponseXML.js"/>
+		<jsScript file="core/ResponseJSON.js"/>
+		
+		<jsScript file="core/PublicMethod.js"/>
+		<jsScript file="core/PublicMethodServer.js"/>
+		<jsScript file="core/Controller.js"/>
+		<jsScript file="core/ControllerObj.js"/>				
+		<jsScript file="core/ControllerObjServer.js"/>
+		<jsScript file="core/ControllerObjClient.js"/>
+				
+		<jsScript file="core/Model.js"/>
+		<jsScript file="core/ModelXML.js"/>
+		<jsScript file="core/ModelObjectXML.js"/>
+		<jsScript file="core/ModelServRespXML.js"/>
+		
+		<jsScript file="core/ModelJSON.js"/>
+		<jsScript file="core/ModelObjectJSON.js"/>		
+		<jsScript file="core/ModelServRespJSON.js"/>
+		<jsScript file="core/ModelXMLTree.js"/>
+		
+		<jsScript file="core/Validator.js"/>
+		<jsScript file="core/ValidatorString.js"/>
+		<jsScript file="core/ValidatorBool.js"/>
+		<jsScript file="core/ValidatorDate.js"/>
+		<jsScript file="core/ValidatorDateTime.js"/>
+		<jsScript file="core/ValidatorTime.js"/>
+		<jsScript file="core/ValidatorInt.js"/>
+		<jsScript file="core/ValidatorFloat.js"/>
+		<jsScript file="core/ValidatorEnum.js"/>
+		<jsScript file="core/ValidatorJSON.js"/>
+		<jsScript file="core/ValidatorArray.js"/>
+		<jsScript file="core/ValidatorEmail.js"/>								
+		
+		<jsScript file="core/Field.js"/>
+		<jsScript file="core/FieldString.js"/>
+		<jsScript file="core/FieldEnum.js"/>
+		<jsScript file="core/FieldBool.js"/>
+		<jsScript file="core/FieldDate.js"/>
+		<jsScript file="core/FieldDateTime.js"/>
+		<jsScript file="core/FieldDateTimeTZ.js"/>
+		<jsScript file="core/FieldTime.js"/>
+		<jsScript file="core/FieldInt.js"/>
+		<jsScript file="core/FieldBigInt.js"/>
+		<jsScript file="core/FieldSmallInt.js"/>
+		<jsScript file="core/FieldFloat.js"/>
+		<jsScript file="core/FieldPassword.js"/>
+		<jsScript file="core/FieldText.js"/>
+		<jsScript file="core/FieldInterval.js"/>
+		<jsScript file="core/FieldJSON.js"/>
+		<jsScript file="core/FieldJSONB.js"/>
+		<jsScript file="core/FieldArray.js"/>
+		<jsScript file="core/ModelFilter.js"/>
+		<jsScript file="core/RefType.js"/>		
+		
+		<jsScript file="core/rs_ru.js" resource="ru"/>
+		
+		<!-- **** controls *** -->		
+		<jsScript file="controls/DataBinding.js"/>
+		<jsScript file="controls/Command.js"/>
+		<jsScript file="controls/CommandBinding.js"/>
+		
+		<jsScript file="controls/Control.js"/>
+		<jsScript file="controls/rs/Control.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/ControlContainer.js"/>
+		<jsScript file="controls/rs/ControlContainer.rs_ru.js" resource="ru"/>
+		
+		<jsScript file="controls/View.js"/>
+		<jsScript file="controls/ViewAjx.js"/>
+		<jsScript file="controls/rs/ViewAjx.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/ViewAjxList.js"/>
+		<jsScript file="controls/ErrorControl.js"/>
+		<jsScript file="controls/Calculator.js"/>
+		<jsScript file="controls/rs/Calculator.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/Button.js"/>
+		<jsScript file="controls/ButtonCtrl.js"/>
+		<jsScript file="controls/ButtonEditCtrl.js"/>
+		<jsScript file="controls/rs/ButtonEditCtrl.rs_ru.js" resource="ru"/>		
+		<jsScript file="controls/ButtonCalc.js"/>
+		<jsScript file="controls/rs/ButtonCalc.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/ButtonCalendar.js"/>
+		<jsScript file="controls/rs/ButtonCalendar.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/ButtonClear.js"/>
+		<jsScript file="controls/rs/ButtonClear.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/ButtonCmd.js"/>
+		<jsScript file="controls/ButtonExpToExcel.js"/>
+		<jsScript file="controls/rs/ButtonExpToExcel.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/ButtonExpToPDF.js"/>
+		<jsScript file="controls/rs/ButtonExpToPDF.rs_ru.js" resource="ru"/>		
+		<jsScript file="controls/ButtonOpen.js"/>
+		<jsScript file="controls/rs/ButtonOpen.rs_ru.js" resource="ru"/>				
+		<jsScript file="controls/ButtonInsert.js"/>
+		<jsScript file="controls/rs/ButtonInsert.rs_ru.js" resource="ru"/>				
+		<jsScript file="controls/ButtonPrint.js"/>
+		<jsScript file="controls/rs/ButtonPrint.rs_ru.js" resource="ru"/>		
+		<jsScript file="controls/ButtonPrintList.js"/>		
+		<jsScript file="controls/rs/ButtonPrintList.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/ButtonSelectRef.js"/>
+		<jsScript file="controls/rs/ButtonSelectRef.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/ButtonSelectDataType.js"/>
+		<jsScript file="controls/rs/ButtonSelectDataType.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/ButtonMakeSelection.js"/>
+		<jsScript file="controls/rs/ButtonMakeSelection.rs_ru.js" resource="ru"/>
+		
+		<jsScript file="controls/ButtonToggle.js"/>		
+		
+		<jsScript file="controls/Label.js"/>
+		
+		<jsScript file="controls/Edit.js"/>
+		<jsScript file="controls/rs/Edit.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/EditRef.js"/>
+		<jsScript file="controls/EditString.js"/>
+		<jsScript file="controls/EditText.js"/>
+		<jsScript file="controls/EditNum.js"/>
+		<jsScript file="controls/EditInt.js"/>
+		<jsScript file="controls/EditFloat.js"/>
+		<jsScript file="controls/EditMoney.js"/>
+		<jsScript file="controls/EditPhone.js"/>
+		<jsScript file="controls/EditEmail.js"/>
+		<jsScript file="controls/EditPercent.js"/>
+		<jsScript file="controls/EditDate.js"/>
+		<jsScript file="controls/EditDateTime.js"/>
+		<jsScript file="controls/EditTime.js"/>		
+		<jsScript file="controls/EditPassword.js"/>
+		<jsScript file="controls/EditCheckBox.js"/>
+		<jsScript file="controls/EditContainer.js"/>		
+		<jsScript file="controls/rs/EditContainer.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/EditRadioGroup.js"/>
+		<jsScript file="controls/EditRadio.js"/>		
+		<jsScript file="controls/EditSelect.js"/>		
+		<jsScript file="controls/EditSelectRef.js"/>
+		<jsScript file="controls/rs/EditSelectRef.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/EditSelectOption.js"/>
+		<jsScript file="controls/EditSelectOptionRef.js"/>
+		<jsScript file="controls/EditRadioGroupRef.js"/>
+		<jsScript file="controls/rs/EditRadioGroupRef.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/PrintObj.js"/>				
+		
+		<jsScript file="controls/ControlForm.js"/>
+		<jsScript file="controls/HiddenKey.js"/>
+		<jsScript file="controls/EditJSON.js"/>
+		<jsScript file="controls/EditModalDialog.js"/>
+		<jsScript file="controls/rs/EditModalDialog.rs_ru.js" resource="ru"/>				
+		
+		<jsScript file="controls/GridColumn.js"/>
+		<jsScript file="controls/GridColumnBool.js"/>
+		<jsScript file="controls/GridColumnPhone.js"/>
+		<jsScript file="controls/GridColumnFloat.js"/>
+		<jsScript file="controls/GridColumnByte.js"/>
+		<jsScript file="controls/GridColumnDate.js"/>
+		<jsScript file="controls/GridColumnDateTime.js"/>
+		<jsScript file="controls/GridColumnEnum.js"/>		
+		<jsScript file="controls/GridColumnRef.js"/>		
+		<jsScript file="controls/GridCell.js"/>
+		<jsScript file="controls/GridCellHead.js"/>
+		<jsScript file="controls/GridCellFoot.js"/>
+		<jsScript file="controls/GridCellPhone.js"/>
+		<jsScript file="controls/rs/GridCellPhone.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/GridCellDetailToggle.js"/>
+		<jsScript file="controls/rs/GridCellDetailToggle.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/GridHead.js"/>
+		<jsScript file="controls/GridRow.js"/>
+		<jsScript file="controls/GridFoot.js"/>
+		<jsScript file="controls/GridBody.js"/>
+		<jsScript file="controls/Grid.js"/>
+		<jsScript file="controls/rs/Grid.rs_ru.js" resource="ru"/>		
+		<jsScript file="controls/GridSearchInf.js"/>
+		<jsScript file="controls/rs/GridSearchInf.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/VariantStorage.js"/>
+		<jsScript file="controls/GridCommands.js"/>
+		<jsScript file="controls/GridCmd.js"/>
+		<jsScript file="controls/GridCmdContainer.js"/>
+		<jsScript file="controls/rs/GridCmdContainer.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/GridCmdContainerAjx.js"/>
+		<jsScript file="controls/GridCmdContainerDOC.js"/>
+		<jsScript file="controls/GridCmdInsert.js"/>
+		<jsScript file="controls/rs/GridCmdInsert.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/GridCmdEdit.js"/>
+		<jsScript file="controls/rs/GridCmdEdit.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/GridCmdCopy.js"/>
+		<jsScript file="controls/rs/GridCmdCopy.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/GridCmdDelete.js"/>
+		<jsScript file="controls/rs/GridCmdDelete.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/GridCmdColManager.js"/>
+		<jsScript file="controls/rs/GridCmdColManager.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/GridCmdPrint.js"/>
+		<jsScript file="controls/rs/GridCmdPrint.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/GridCmdRefresh.js"/>
+		<jsScript file="controls/rs/GridCmdRefresh.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/GridCmdPrintObj.js"/>
+		<jsScript file="controls/GridCmdSearch.js"/>
+		<jsScript file="controls/rs/GridCmdSearch.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/GridCmdExport.js"/>
+		<jsScript file="controls/rs/GridCmdExport.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/GridCmdAllCommands.js"/>
+		<jsScript file="controls/rs/GridCmdAllCommands.rs_ru.js" resource="ru"/>		
+		<jsScript file="controls/GridCmdDOCUnprocess.js"/>
+		<jsScript file="controls/rs/GridCmdDOCUnprocess.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/GridCmdDOCShowActs.js"/>
+		<jsScript file="controls/rs/GridCmdDOCShowActs.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/GridCmdRowUp.js"/>
+		<jsScript file="controls/rs/GridCmdRowUp.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/GridCmdRowDown.js"/>
+		<jsScript file="controls/rs/GridCmdRowDown.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/GridCmdFilter.js"/>
+		<jsScript file="controls/rs/GridCmdFilter.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/GridCmdFilterView.js"/>
+		<jsScript file="controls/rs/GridCmdFilterView.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/GridCmdFilterSave.js"/>
+		<jsScript file="controls/rs/GridCmdFilterSave.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/GridCmdFilterOpen.js"/>
+		<jsScript file="controls/rs/GridCmdFilterOpen.rs_ru.js" resource="ru"/>
+
+		<jsScript file="controls/ViewGridColManager.js"/>
+		<jsScript file="controls/rs/ViewGridColManager.rs_ru.js" resource="ru"/>		
+		<jsScript file="controls/ViewGridColParam.js"/>
+		<jsScript file="controls/rs/ViewGridColParam.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/ViewGridColVisibility.js"/>
+		<jsScript file="controls/rs/ViewGridColVisibility.rs_ru.js" resource="ru"/>		
+		<jsScript file="controls/ViewGridColOrder.js"/>
+		<jsScript file="controls/rs/ViewGridColOrder.rs_ru.js" resource="ru"/>		
+		
+		<jsScript file="controls/VariantStorageSaveView.js"/>
+		<jsScript file="controls/rs/VariantStorageSaveView.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/VariantStorageOpenView.js"/>
+		<jsScript file="controls/rs/VariantStorageOpenView.rs_ru.js" resource="ru"/>
+		
+		<jsScript file="controls/GridAjx.js"/>
+		<jsScript file="controls/rs/GridAjx.rs_ru.js" resource="ru"/>		
+		<jsScript file="controls/TreeAjx.js"/>
+		<jsScript file="controls/GridAjxDOCT.js"/>
+		<jsScript file="controls/GridAjxMaster.js"/>
+		
+		<jsScript file="controls/GridCommandsAjx.js"/>
+		<jsScript file="controls/rs/GridCommandsAjx.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/GridCommandsDOC.js"/>
+		<jsScript file="controls/rs/GridCommandsDOC.rs_ru.js" resource="ru"/>
+		
+		<jsScript file="controls/GridPagination.js"/>
+		<jsScript file="controls/rs/GridPagination.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/GridFilter.js"/>
+		<jsScript file="controls/rs/GridFilter.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/EditPeriodDate.js"/>
+		<jsScript file="controls/rs/EditPeriodDate.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/EditPeriodDateTime.js"/>		
+		
+		<jsScript file="controls/EditCompound.js"/>		
+		<jsScript file="controls/rs/EditCompound.rs_ru.js" resource="ru"/>
+		
+		<jsScript file="controls/ConstantGrid.js"/>
+		<jsScript file="controls/rs/ConstantGrid.rs_ru.js" resource="ru"/>
+		
+		<jsScript file="controls/ButtonOK.js"/>
+		<jsScript file="controls/rs/ButtonOK.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/ButtonSave.js"/>
+		<jsScript file="controls/rs/ButtonSave.rs_ru.js" resource="ru"/>		
+		<jsScript file="controls/ButtonCancel.js"/>
+		<jsScript file="controls/rs/ButtonCancel.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/ViewObjectAjx.js"/>
+		<jsScript file="controls/rs/ViewObjectAjx.rs_ru.js" resource="ru"/>		
+		<jsScript file="controls/ViewGridEditInlineAjx.js"/>
+		<jsScript file="controls/rs/ViewGridEditInlineAjx.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/ViewDOC.js"/>
+		<jsScript file="controls/rs/ViewDOC.rs_ru.js" resource="ru"/>		
+
+		<jsScript file="controls/WindowPrint.js"/>
+		<jsScript file="controls/rs/WindowPrint.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/WindowQuestion.js"/>
+		<jsScript file="controls/rs/WindowQuestion.rs_ru.js" resource="ru"/>		
+		<jsScript file="controls/WindowSearch.js"/>
+		<jsScript file="controls/rs/WindowSearch.rs_ru.js" resource="ru"/>		
+		<jsScript file="controls/WindowForm.js"/>
+		<jsScript file="controls/rs/WindowForm.rs_ru.js" resource="ru"/>		
+		<jsScript file="controls/WindowFormObject.js"/>
+		<jsScript file="controls/rs/WindowFormObject.rs_ru.js" resource="ru"/>		
+		<jsScript file="controls/WindowFormModalBS.js"/>
+		<jsScript file="controls/rs/WindowFormModalBS.rs_ru.js" resource="ru"/>		
+		<jsScript file="controls/WindowMessage.js"/>
+		<jsScript file="controls/WindowTempMessage.js"/>
+		
+		<jsScript file="controls/GridCellHeadDOCProcessed.js"/>
+		<jsScript file="controls/GridCellHeadDOCDate.js"/>
+		<jsScript file="controls/GridCellHeadDOCNumber.js"/>								
+		
+		<jsScript file="controls/actb.js"/>
+		<jsScript file="controls/rs/actb.rs_ru.js" resource="ru"/>
+				
+		<jsScript file="controls/RepCommands.js"/>	
+		<jsScript file="controls/rs/RepCommands.rs_ru.js" resource="ru"/>			
+		
+		<jsScript file="controls/ViewReport.js"/>	
+		<jsScript file="controls/rs/ViewReport.rs_ru.js" resource="ru"/>
+		
+		<jsScript file="controls/PopUpMenu.js"/>								
+		<jsScript file="controls/PopOver.js"/>
+		<jsScript file="controls/PeriodSelect.js"/>
+		<jsScript file="controls/rs/PeriodSelect.rs_ru.js" resource="ru"/>
+		<jsScript file="controls/WindowAbout.js"/>
+		<jsScript file="controls/rs/WindowAbout.rs_ru.js" resource="ru"/>
+		
+		<jsScript file="controls/MainMenuTree.js"/>		
+		<jsScript file="controls/rs/MainMenuTree.rs_ru.js" resource="ru"/>
+		
+		<jsScript file="controls/BigFileUploader.js"/>		
+		<jsScript file="controls/rs/BigFileUploader.rs_ru.js" resource="ru"/>
+
+		<!--
+		<jsScript file="controls/BreadCrum.js"/>		
+		<jsScript file="controls/rs/BreadCrum.rs_ru.js" resource="ru"/>
+		-->
+		
+		
+		<!--
+		<jsScript file="controls/ButtonOrgSearch.js"/>		
+		-->
+
+		<!-- **** Forms *** -->
+		<jsScript file="forms/ViewList_Form.js"/>
+		<jsScript file="forms/MainMenuConstructor_Form.js"/>
+		<jsScript file="forms/User_Form.js"/>
+		<jsScript file="forms/UserList_Form.js"/>
+		<jsScript file="forms/ClientList_Form.js"/>
+		<jsScript file="forms/OKEIList_Form.js"/>
+		<jsScript file="forms/MaterialList_Form.js"/>
+		<jsScript file="forms/OKTMO_Form.js"/>
+		<jsScript file="forms/DocOrderList_Form.js"/>
+		<jsScript file="forms/DocOrderDialog_Form.js"/>
+		<jsScript file="forms/DocProcurementList_Form.js"/>		
+		<jsScript file="forms/DocProcurementDialog_Form.js"/>
+		<jsScript file="forms/DocShipmentList_Form.js"/>
+		<jsScript file="forms/DocShipmentDialog_Form.js"/>		
+		<jsScript file="forms/DocPassToProductionList_Form.js"/>
+		<jsScript file="forms/DocPassToProductionDialog_Form.js"/>
+		<jsScript file="forms/DocMovementList_Form.js"/>		
+		<jsScript file="forms/DocMovementDialog_Form.js"/>
+
+		<!-- **** Controllers && Models *** -->
+		<jsScript file="controllers/User_Controller.js"/>
+		
+		<!-- **** Views *** -->
+		<jsScript file="views/Login_View.js"/>		
+		<jsScript file="views/MainMenuConstructorList_View.js"/>
+		<jsScript file="views/MainMenuConstructor_View.js"/>		
+		<jsScript file="views/ViewList_View.js"/>						
+		<jsScript file="views/About_View.js"/>		
+		<jsScript file="views/ConstantList_View.js"/>
+		<jsScript file="views/ProjectManager_View.js"/>
+		<jsScript file="views/LoginList_View.js"/>
+		
+		<jsScript file="views/UserList_View.js"/>		
+		<jsScript file="views/rs/UserList_View.rs_ru.js" resource="ru"/>
+		<jsScript file="views/UserDialog_View.js"/>
+		<jsScript file="views/UserProfile_View.js"/>
+		<jsScript file="views/TimeZoneLocale_View.js"/>		
+		<jsScript file="views/ClientList_View.js"/>
+		<jsScript file="views/OKEIList_View.js"/>
+		<jsScript file="views/MaterialList_View.js"/>
+		<jsScript file="views/OKTMOList_View.js"/>
+		<jsScript file="views/OKTMOContractList_View.js"/>
+		<jsScript file="views/OKTMODialog_View.js"/>
+		<jsScript file="views/DocOrderList_View.js"/>
+		<jsScript file="views/DocOrderDialog_View.js"/>
+		<jsScript file="views/DocShipmentList_View.js"/>
+		<jsScript file="views/DocShipmentDialog_View.js"/>
+		<jsScript file="views/DocPassToProductionList_View.js"/>
+		<jsScript file="views/DocPassToProductionDialog_View.js"/>
+		<jsScript file="views/DocMovementList_View.js"/>
+		<jsScript file="views/DocMovementDialog_View.js"/>
+		<jsScript file="views/DocProcurementList_View.js"/>
+		<jsScript file="views/DocProcurementDialog_View.js"/>
+		
+		<jsScript file="views/StoreList_View.js"/>
+		<jsScript file="views/RepMaterialAction_View.js"/>
+		
+		
+				
+		<jsScript file="tmpl/App.templates.js" compressed="FALSE" standalone="FALSE"/>
+		
+		<jsScript file="custom_controls/App_tmnstroi.js"/>
+		
+		<jsScript file="custom_controls/ViewSectionSelect.js"/>
+		<jsScript file="custom_controls/ViewEditRef.js"/>
+		<!-->
+		<jsScript file="custom_controls/DOCCommands.js"/>
+		<jsScript file="custom_controls/DOCNumberEdit.js"/>
+		<jsScript file="custom_controls/DOCDateEdit.js"/>
+		-->
+		<jsScript file="custom_controls/UserNameEdit.js"/>		
+		<jsScript file="custom_controls/UserEditRef.js"/>
+
+		<jsScript file="custom_controls/rs_common_ru.js"/>		
+		<jsScript file="custom_controls/rs_ru.js" resource="ru"/>
+		
+		<jsScript file="custom_controls/TimeZoneLocaleEdit.js"/>		
+		<jsScript file="custom_controls/EditINN.js"/>
+		<jsScript file="custom_controls/OKEIEdit.js"/>
+		<jsScript file="custom_controls/OKTMOContractEdit.js"/>
+		<jsScript file="custom_controls/OKTMOEdit.js"/>
+		<jsScript file="custom_controls/MaterialEdit.js"/>
+		<jsScript file="custom_controls/DocMaterialGrid.js"/>
+		<jsScript file="custom_controls/DocProcurementEdit.js"/>
+		<jsScript file="custom_controls/DocShipmentEdit.js"/>
+		<jsScript file="custom_controls/StoreEdit.js"/>								
+		
+		
+		<jsScript file="models/TimeZoneLocale_Model.js"/>
+		<jsScript file="models/User_Model.js"/>
+		<jsScript file="models/UserList_Model.js"/>
+		<jsScript file="models/UserDialog_Model.js"/>
+		<jsScript file="models/Session_Model.js"/>
+		<jsScript file="models/Login_Model.js"/>
+		<jsScript file="models/LoginList_Model.js"/>
+		<jsScript file="models/ConstantList_Model.js"/>
+		<jsScript file="models/View_Model.js"/>
+		<jsScript file="models/ViewList_Model.js"/>
+		<jsScript file="models/ViewSectionList_Model.js"/>
+		<jsScript file="models/MainMenuConstructor_Model.js"/>
+		<jsScript file="models/MainMenuConstructorList_Model.js"/>
+		<jsScript file="models/MainMenuConstructorDialog_Model.js"/>
+		<jsScript file="models/MainMenuContent_Model.js"/>
+		<jsScript file="models/VariantStorage_Model.js"/>
+		<jsScript file="models/VariantStorageList_Model.js"/>
+		<jsScript file="models/About_Model.js"/>
+		<jsScript file="models/Client_Model.js"/>
+		<jsScript file="models/OKEI_Model.js"/>
+		<jsScript file="models/OKEIList_Model.js"/>
+		<jsScript file="models/OKEISection_Model.js"/>
+		
+		<jsScript file="views/rs_ru.js"/>
+		<jsScript file="views/rs_common_ru.js" resource="ru"/>
+	<jsScript file="controllers/Constant_Controller.js"/><jsScript file="controllers/Enum_Controller.js"/><jsScript file="controllers/MainMenuConstructor_Controller.js"/><jsScript file="controllers/MainMenuContent_Controller.js"/><jsScript file="controllers/View_Controller.js"/><jsScript file="controllers/VariantStorage_Controller.js"/><jsScript file="controllers/About_Controller.js"/><jsScript file="controllers/Login_Controller.js"/><jsScript file="custom_controls/App.predefinedItems.js"/><jsScript file="enum_controls/Enum_locales.js"/><jsScript file="enum_controls/EnumGridColumn_locales.js"/><jsScript file="enum_controls/Enum_role_types.js"/><jsScript file="enum_controls/EnumGridColumn_role_types.js"/><jsScript file="enum_controls/Enum_data_types.js"/>
+	<jsScript file="enum_controls/EnumGridColumn_data_types.js"/>
+	<jsScript file="enum_controls/Enum_reg_types.js"/>
+	<jsScript file="enum_controls/EnumGridColumn_reg_types.js"/>
+	<jsScript file="custom_controls/App.enums.js"/>
+	<jsScript file="controllers/TimeZoneLocale_Controller.js"/>		
+	<jsScript file="controllers/Client_Controller.js"/>
+	<jsScript file="controllers/OKEI_Controller.js"/>
+	<jsScript file="controllers/OKEISection_Controller.js"/>
+	<jsScript file="controllers/Material_Controller.js"/><jsScript file="models/MaterialList_Model.js"/><jsScript file="models/Material_Model.js"/><jsScript file="controllers/OKTMO_Controller.js"/><jsScript file="models/OKTMO_Model.js"/><jsScript file="models/OKTMOContractList_Model.js"/><jsScript file="controllers/OKTMOContract_Controller.js"/><jsScript file="models/OKTMOContract_Model.js"/><jsScript file="models/UserProfile_Model.js"/><jsScript file="models/DocOrder_Model.js"/><jsScript file="models/DocOrderList_Model.js"/><jsScript file="models/DocOrderDialog_Model.js"/><jsScript file="controllers/DocOrder_Controller.js"/><jsScript file="models/DocShipment_Model.js"/><jsScript file="models/DocShipmentList_Model.js"/><jsScript file="models/DocShipmentDialog_Model.js"/><jsScript file="controllers/DocShipment_Controller.js"/><jsScript file="models/DocPassToProduction_Model.js"/><jsScript file="models/DocPassToProductionList_Model.js"/><jsScript file="models/DocPassToProductionDialog_Model.js"/><jsScript file="controllers/DocPassToProduction_Controller.js"/><jsScript file="models/DocMovement_Model.js"/><jsScript file="models/DocMovementList_Model.js"/><jsScript file="models/DocMovementDialog_Model.js"/><jsScript file="controllers/DocMovement_Controller.js"/><jsScript file="models/DocMaterialList_Model.js"/><jsScript file="controllers/DocMaterial_Controller.js"/><jsScript file="models/Store_Model.js"/><jsScript file="models/StoreList_Model.js"/><jsScript file="controllers/Store_Controller.js"/><jsScript file="models/RGMaterial_Model.js"/><jsScript file="models/DocProcurement_Model.js"/><jsScript file="models/DocProcurementList_Model.js"/><jsScript file="models/DocProcurementDialog_Model.js"/><jsScript file="controllers/DocProcurement_Controller.js"/><jsScript file="models/RAMaterial_Model.js"/><jsScript file="models/MaterialActionList_Model.js"/><jsScript file="models/RAOrder_Model.js"/><jsScript file="models/RGOrder_Model.js"/></jsScripts>
+	
+	
+	<cssScripts>
+		<cssScript file="assets/css/icons/icomoon/styles.css" compressed="TRUE" standalone="TRUE"/>
+		<cssScript file="assets/css/bootstrap.min.css" compressed="TRUE" standalone="TRUE"/>
+		<cssScript file="assets/css/core.min.css" compressed="TRUE" standalone="TRUE"/>
+		<cssScript file="assets/css/components.min.css" compressed="TRUE" standalone="TRUE"/>
+		<cssScript file="assets/css/colors.min.css" compressed="TRUE" standalone="TRUE"/>
+		<cssScript file="assets/css/icons/fontawesome/styles.min.css" compressed="TRUE" standalone="TRUE"/>
+		<cssScript file="ext/bootstrap-datepicker/bootstrap-datepicker.standalone.min.css" compressed="TRUE" standalone="TRUE"/>
+		<cssScript file="custom-css/style.css" standalone="TRUE"/>
+		<cssScript file="custom-css/print.css" standalone="TRUE"/>
+	</cssScripts>	
+</metadata>

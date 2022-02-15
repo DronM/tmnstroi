@@ -1,0 +1,435 @@
+array (
+  'ROLES' => 
+  array (
+    0 => 
+    array (
+      'ID' => 'admin',
+      'NOT_FIRST' => false,
+      'CONTROLLERS' => 
+      array (
+        0 => 
+        array (
+          'ID' => 'Event',
+          'NOT_FIRST' => false,
+          'METHODS' => 
+          array (
+            0 => 
+            array (
+              'ID' => 'subscribe',
+              'NOT_FIRST' => false,
+              'ALLOWED' => true,
+            ),
+            1 => 
+            array (
+              'ID' => 'unsubscribe',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            2 => 
+            array (
+              'ID' => 'publish',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+          ),
+        ),
+        1 => 
+        array (
+          'ID' => 'Constant',
+          'NOT_FIRST' => true,
+          'METHODS' => 
+          array (
+            0 => 
+            array (
+              'ID' => 'set_value',
+              'NOT_FIRST' => false,
+              'ALLOWED' => true,
+            ),
+            1 => 
+            array (
+              'ID' => 'get_list',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            2 => 
+            array (
+              'ID' => 'get_object',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            3 => 
+            array (
+              'ID' => 'get_values',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+          ),
+        ),
+        2 => 
+        array (
+          'ID' => 'Enum',
+          'NOT_FIRST' => true,
+          'METHODS' => 
+          array (
+            0 => 
+            array (
+              'ID' => 'get_enum_list',
+              'NOT_FIRST' => false,
+              'ALLOWED' => true,
+            ),
+          ),
+        ),
+        3 => 
+        array (
+          'ID' => 'MainMenuConstructor',
+          'NOT_FIRST' => true,
+          'METHODS' => 
+          array (
+            0 => 
+            array (
+              'ID' => 'insert',
+              'NOT_FIRST' => false,
+              'ALLOWED' => true,
+            ),
+            1 => 
+            array (
+              'ID' => 'update',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            2 => 
+            array (
+              'ID' => 'delete',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            3 => 
+            array (
+              'ID' => 'get_list',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            4 => 
+            array (
+              'ID' => 'get_object',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+          ),
+        ),
+        4 => 
+        array (
+          'ID' => 'MainMenuContent',
+          'NOT_FIRST' => true,
+          'METHODS' => 
+          array (
+            0 => 
+            array (
+              'ID' => 'insert',
+              'NOT_FIRST' => false,
+              'ALLOWED' => true,
+            ),
+            1 => 
+            array (
+              'ID' => 'update',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            2 => 
+            array (
+              'ID' => 'delete',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            3 => 
+            array (
+              'ID' => 'get_list',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            4 => 
+            array (
+              'ID' => 'get_object',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+          ),
+        ),
+        5 => 
+        array (
+          'ID' => 'View',
+          'NOT_FIRST' => true,
+          'METHODS' => 
+          array (
+            0 => 
+            array (
+              'ID' => 'get_list',
+              'NOT_FIRST' => false,
+              'ALLOWED' => true,
+            ),
+            1 => 
+            array (
+              'ID' => 'complete',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            2 => 
+            array (
+              'ID' => 'get_section_list',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+          ),
+        ),
+        6 => 
+        array (
+          'ID' => 'VariantStorage',
+          'NOT_FIRST' => true,
+          'METHODS' => 
+          array (
+            0 => 
+            array (
+              'ID' => 'insert',
+              'NOT_FIRST' => false,
+              'ALLOWED' => true,
+            ),
+            1 => 
+            array (
+              'ID' => 'upsert_filter_data',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            2 => 
+            array (
+              'ID' => 'upsert_col_visib_data',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            3 => 
+            array (
+              'ID' => 'upsert_col_order_data',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            4 => 
+            array (
+              'ID' => 'update',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            5 => 
+            array (
+              'ID' => 'delete',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            6 => 
+            array (
+              'ID' => 'get_list',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            7 => 
+            array (
+              'ID' => 'get_object',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            8 => 
+            array (
+              'ID' => 'get_filter_data',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            9 => 
+            array (
+              'ID' => 'get_col_visib_data',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            10 => 
+            array (
+              'ID' => 'get_col_order_data',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+          ),
+        ),
+        7 => 
+        array (
+          'ID' => 'About',
+          'NOT_FIRST' => true,
+          'METHODS' => 
+          array (
+            0 => 
+            array (
+              'ID' => 'get_object',
+              'NOT_FIRST' => false,
+              'ALLOWED' => true,
+            ),
+          ),
+        ),
+        8 => 
+        array (
+          'ID' => 'User',
+          'NOT_FIRST' => true,
+          'METHODS' => 
+          array (
+            0 => 
+            array (
+              'ID' => 'insert',
+              'NOT_FIRST' => false,
+              'ALLOWED' => true,
+            ),
+            1 => 
+            array (
+              'ID' => 'update',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            2 => 
+            array (
+              'ID' => 'delete',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            3 => 
+            array (
+              'ID' => 'get_list',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            4 => 
+            array (
+              'ID' => 'get_object',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            5 => 
+            array (
+              'ID' => 'complete',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            6 => 
+            array (
+              'ID' => 'get_profile',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            7 => 
+            array (
+              'ID' => 'reset_pwd',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            8 => 
+            array (
+              'ID' => 'login',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            9 => 
+            array (
+              'ID' => 'login_refresh',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            10 => 
+            array (
+              'ID' => 'logout',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            11 => 
+            array (
+              'ID' => 'logout_html',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+          ),
+        ),
+        9 => 
+        array (
+          'ID' => 'Login',
+          'NOT_FIRST' => true,
+          'METHODS' => 
+          array (
+            0 => 
+            array (
+              'ID' => 'get_list',
+              'NOT_FIRST' => false,
+              'ALLOWED' => true,
+            ),
+            1 => 
+            array (
+              'ID' => 'get_object',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+          ),
+        ),
+        10 => 
+        array (
+          'ID' => 'TimeZoneLocale',
+          'NOT_FIRST' => true,
+          'METHODS' => 
+          array (
+            0 => 
+            array (
+              'ID' => 'insert',
+              'NOT_FIRST' => false,
+              'ALLOWED' => true,
+            ),
+            1 => 
+            array (
+              'ID' => 'update',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            2 => 
+            array (
+              'ID' => 'delete',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            3 => 
+            array (
+              'ID' => 'get_list',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+            4 => 
+            array (
+              'ID' => 'get_object',
+              'NOT_FIRST' => true,
+              'ALLOWED' => true,
+            ),
+          ),
+        ),
+      ),
+    ),
+    1 => 
+    array (
+      'ID' => 'guest',
+      'NOT_FIRST' => true,
+      'CONTROLLERS' => 
+      array (
+        0 => 
+        array (
+          'ID' => 'User',
+          'NOT_FIRST' => false,
+          'METHODS' => 
+          array (
+            0 => 
+            array (
+              'ID' => 'login',
+              'NOT_FIRST' => false,
+              'ALLOWED' => true,
+            ),
+          ),
+        ),
+      ),
+    ),
+  ),
+)

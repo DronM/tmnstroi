@@ -1,0 +1,284 @@
+package controllers
+
+/**
+ * Andrey Mikhalevich 15/12/21
+ * This file is part of the OSBE framework
+ *
+ * THIS FILE IS GENERATED FROM TEMPLATE build/templates/controllers/Controller.go.tmpl
+ * ALL DIRECT MODIFICATIONS WILL BE LOST WITH THE NEXT BUILD PROCESS!!!
+ */
+
+import (
+	{{#REFLECT_PKG}}"reflect"{{/REFLECT_PKG}}	
+	{{#ENC_JSON_PKG}}"encoding/json"{{/ENC_JSON_PKG}}
+	
+	"{{APP_NAME}}/models"
+	
+	"osbe"
+	{{#REFLECT_PKG}}"osbe/fields"{{/REFLECT_PKG}}
+	{{#ENC_JSON_PKG}}
+	"osbe/srv"
+	"osbe/socket"
+	"osbe/response"	
+	{{#GET_LIST}}"osbe/model"{{/GET_LIST}}
+	{{/ENC_JSON_PKG}}
+	
+	//"github.com/jackc/pgx/v4"
+)
+
+//Controller
+type {{ID}}_Controller struct {
+	osbe.Base_Controller
+}
+
+func NewController_{{ID}}() *{{ID}}_Controller{
+	c := &{{ID}}_Controller{osbe.Base_Controller{ID: "{{ID}}", PublicMethods: make(osbe.PublicMethodCollection)}}	
+	{{#DELETE_OR_GET_OBJECT}}keys_fields := fields.GenModelMD(reflect.ValueOf(models.{{ID}}_keys{})){{/DELETE_OR_GET_OBJECT}}
+	
+	{{#INSERT}}
+	//************************** method insert **********************************
+	c.PublicMethods["insert"] = &{{ID}}_Controller_insert{
+		osbe.Base_PublicMethod{
+			ID: "insert",
+			Fields: fields.GenModelMD(reflect.ValueOf(models.{{ID}}{})),
+			EventList: osbe.PublicMethodEventList{"{{ID}}.insert"},
+		},
+	}
+	{{/INSERT}}
+	
+	{{#DELETE}}
+	//************************** method delete *************************************
+	c.PublicMethods["delete"] = &{{ID}}_Controller_delete{
+		osbe.Base_PublicMethod{
+			ID: "delete",
+			Fields: keys_fields,
+			EventList: osbe.PublicMethodEventList{"{{ID}}.delete"},
+		},
+	}
+	{{/DELETE}}
+	
+	{{#UPDATE}}
+	//************************** method update *************************************
+	c.PublicMethods["update"] = &{{ID}}_Controller_update{
+		osbe.Base_PublicMethod{
+			ID: "update",
+			Fields: fields.GenModelMD(reflect.ValueOf(models.{{ID}}_old_keys{})),
+			EventList: osbe.PublicMethodEventList{"{{ID}}.update"},
+		},
+	}
+	{{/UPDATE}}
+	
+	{{#GET_OBJECT}}
+	//************************** method get_object *************************************
+	c.PublicMethods["get_object"] = &{{ID}}_Controller_get_object{
+		osbe.Base_PublicMethod{
+			ID: "get_object",
+			Fields: keys_fields,
+		},
+	}
+	{{/GET_OBJECT}}
+	
+	{{#GET_LIST}}
+	//************************** method get_list *************************************
+	c.PublicMethods["get_list"] = &{{ID}}_Controller_get_list{
+		osbe.Base_PublicMethod{
+			ID: "get_list",
+			Fields: model.Cond_Model_fields,
+		},
+	}
+	{{/GET_LIST}}
+	
+	{{#COMPLETE}}
+	//************************** method complete *************************************
+	c.PublicMethods["complete"] = &{{ID}}_Controller_complete{
+		osbe.Base_PublicMethod{
+			ID: "complete",
+			Fields: fields.GenModelMD(reflect.ValueOf(models.{{ID}}_complete{})),
+		},
+	}
+	{{/COMPLETE}}
+			
+	{{#METHODS}}
+	//************************** method {{METHOD_ID}} **********************************
+	c.PublicMethods["{{METHOD_ID}}"] = &{{ID}}_Controller_{{METHOD_ID}}{
+		osbe.Base_PublicMethod{
+			ID: {{METHOD_ID}},
+			Fields: fields.GenModelMD(reflect.ValueOf(models.{{ID}}_{{METHOD_ID}}{})),
+			{{#METHOD_EVENT}}EventList: osbe.PublicMethodEventList{"{{ID}}.{{METHOD_ID}}"},{{/METHOD_EVENT}}
+		},
+	}	
+	{{/METHODS}}
+	
+	return c
+}
+
+{{#DELETE_OR_GET_OBJECT}}
+type {{ID}}_Controller_keys_argv struct {
+	Argv models.{{ID}}_keys `json:"argv"`	
+}
+{{/DELETE_OR_GET_OBJECT}}
+
+{{#INSERT}}
+//************************* INSERT **********************************************
+//Public method: insert
+type {{ID}}_Controller_insert struct {
+	osbe.Base_PublicMethod
+}
+
+//Public method Unmarshal to structure
+func (pm *{{ID}}_Controller_insert) Unmarshal(payload []byte) (reflect.Value, error) {
+	var res reflect.Value
+	argv := &models.{{ID}}_argv{}
+		
+	if err := json.Unmarshal(payload, argv); err != nil {
+		return res, err
+	}
+	res = reflect.ValueOf(&argv.Argv).Elem()	
+	return res, nil
+}
+func (pm *{{ID}}_Controller_insert) Run(app osbe.Applicationer, serv srv.Server, sock socket.ClientSocketer, resp *response.Response, rfltArgs reflect.Value) error {
+	return osbe.InsertOnArgs(app, pm, resp, sock, rfltArgs, app.GetMD().Models["{{ID}}"].Relation, &models.{{ID}}_keys{})
+}
+{{/INSERT}}
+
+{{#DELETE}}
+//************************* DELETE **********************************************
+type {{ID}}_Controller_delete struct {
+	osbe.Base_PublicMethod
+}
+
+//Public method Unmarshal to structure
+func (pm *{{ID}}_Controller_delete) Unmarshal(payload []byte) (reflect.Value, error) {
+	var res reflect.Value
+	argv := &models.{{ID}}_keys_argv{}
+		
+	if err := json.Unmarshal(payload, argv); err != nil {
+		return res, err
+	}	
+	res = reflect.ValueOf(&argv.Argv).Elem()	
+	return res, nil
+}
+
+//Method implemenation
+func (pm *{{ID}}_Controller_delete) Run(app osbe.Applicationer, serv srv.Server, sock socket.ClientSocketer, resp *response.Response, rfltArgs reflect.Value) error {
+	return osbe.DeleteOnArgKeys(app, pm, resp, sock, rfltArgs, app.GetMD().Models["{{ID}}"].Relation)
+}
+{{/DELETE}}
+
+{{#GET_OBJECT}}
+//************************* GET OBJECT **********************************************
+type {{ID}}_Controller_get_object struct {
+	osbe.Base_PublicMethod
+}
+
+//Public method Unmarshal to structure
+func (pm *{{ID}}_Controller_get_object) Unmarshal(payload []byte) (reflect.Value, error) {
+	var res reflect.Value
+	argv := &models.{{ID}}_keys_argv{}
+		
+	if err := json.Unmarshal(payload, argv); err != nil {
+		return res, err
+	}	
+	res = reflect.ValueOf(&argv.Argv).Elem()	
+	return res, nil
+}
+
+//Method implemenation
+func (pm *{{ID}}_Controller_get_object) Run(app osbe.Applicationer, serv srv.Server, sock socket.ClientSocketer, resp *response.Response, rfltArgs reflect.Value) error {
+	return osbe.GetObjectOnArgs(app, resp, rfltArgs, app.GetMD().Models["{{GET_OBJECT}}"], &models.{{GET_OBJECT}}{})
+}
+{{/GET_OBJECT}}
+
+{{#GET_LIST}}
+//************************* GET LIST **********************************************
+//Public method: get_list
+type {{ID}}_Controller_get_list struct {
+	osbe.Base_PublicMethod
+}
+//Public method Unmarshal to structure
+func (pm *{{ID}}_Controller_get_list) Unmarshal(payload []byte) (reflect.Value, error) {
+	var res reflect.Value
+	argv := &model.Controller_get_list_argv{}
+		
+	if err := json.Unmarshal(payload, argv); err != nil {
+		return res, err
+	}	
+	res = reflect.ValueOf(&argv.Argv).Elem()	
+	return res, nil
+}
+
+//Method implemenation
+func (pm *{{ID}}_Controller_get_list) Run(app osbe.Applicationer, serv srv.Server, sock socket.ClientSocketer, resp *response.Response, rfltArgs reflect.Value) error {
+	return osbe.GetListOnArgs(app, resp, rfltArgs, app.GetMD().Models["{{GET_LIST}}"], &models.{{GET_LIST}}{})
+}
+{{/GET_LIST}}
+
+{{#UPDATE}}
+//************************* UPDATE **********************************************
+//Public method: update
+type {{ID}}_Controller_update struct {
+	osbe.Base_PublicMethod
+}
+//Public method Unmarshal to structure
+func (pm *{{ID}}_Controller_update) Unmarshal(payload []byte) (reflect.Value, error) {
+	var res reflect.Value
+	argv := &models.{{ID}}_old_keys_argv{}
+		
+	if err := json.Unmarshal(payload, argv); err != nil {
+		return res, err
+	}	
+	res = reflect.ValueOf(&argv.Argv).Elem()	
+	return res, nil
+}
+
+//Method implemenation
+func (pm *{{ID}}_Controller_update) Run(app osbe.Applicationer, serv srv.Server, sock socket.ClientSocketer, resp *response.Response, rfltArgs reflect.Value) error {
+	return osbe.UpdateOnArgs(app, pm, sock, rfltArgs, app.GetMD().Models["{{ID}}"].Relation)	
+}
+{{/UPDATE}}
+{{#COMPLETE}}
+//************************** COMPLETE ********************************************************
+//Public method: complete
+type {{ID}}_Controller_complete struct {
+	osbe.Base_PublicMethod
+}
+//Public method Unmarshal to structure
+func (pm *{{ID}}_Controller_complete) Unmarshal(payload []byte) (reflect.Value, error) {
+	var res reflect.Value
+	argv := &models.{{ID}}_complete_argv{}
+		
+	if err := json.Unmarshal(payload, argv); err != nil {
+		return res, err
+	}	
+	res = reflect.ValueOf(&argv.Argv).Elem()	
+	return res, nil
+}
+
+//Method implemenation
+func (pm *{{ID}}_Controller_complete) Run(app osbe.Applicationer, serv srv.Server, sock socket.ClientSocketer, resp *response.Response, rfltArgs reflect.Value) error {
+	return osbe.CompleteOnArgs(app, resp, rfltArgs, app.GetMD().Models["{{COMPLETE}}"], &models.{{COMPLETE}}{})
+}
+{{/COMPLETE}}
+{{#METHODS}}
+//************************** {{METHOD_ID}} ********************************************************
+//Custom method
+type {{ID}}_Controller_{{METHOD_ID}} struct {
+	osbe.Base_PublicMethod
+}
+//Public method Unmarshal to structure
+func (pm *{{ID}}_Controller_{{METHOD_ID}}) Unmarshal(payload []byte) (reflect.Value, error) {
+	var res reflect.Value
+	argv := &models.{{ID}}_{{METHOD_ID}}_argv{}
+		
+	if err := json.Unmarshal(payload, argv); err != nil {
+		return res, err
+	}	
+	res = reflect.ValueOf(&argv.Argv).Elem()	
+	return res, nil
+}
+
+//Method implemenation
+func (pm *{{ID}}_Controller_{{METHOD_ID}}) Run(app osbe.Applicationer, serv srv.Server, sock socket.ClientSocketer, resp *response.Response, rfltArgs reflect.Value) error {
+	//
+}
+{{/METHODS}}

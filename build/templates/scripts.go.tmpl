@@ -1,0 +1,28 @@
+package main
+
+/**
+ * Andrey Mikhalevich 15/12/21
+ * This file is part of the OSBE framework
+ * 
+ * This file is generated from the template build/templates/scripts.go.tmpl
+ * All direct modification will be lost with the next build.
+ * Edit template instead.
+*/
+
+import(
+	"osbe/srv/httpSrv"
+)
+
+func (a *TmnstroiApp) setCSS() {
+	a.CSSModel = httpSrv.NewLinkModel({{CSS_SCRIPT_COUNT}})
+	{{#CSS_SCRIPTS}}
+	a.CSSModel.Rows[{{IND}}] = &httpSrv.TagLink{Href: "js20/{{HREF}}"}
+	{{/CSS_SCRIPTS}}
+}
+
+func (a *TmnstroiApp) setJavaScript() {
+	a.JavaScriptModel = httpSrv.NewScriptModel({{JS_SCRIPT_COUNT}})
+	{{#JS_SCRIPTS}}
+	a.JavaScriptModel.Rows[{{IND}}] = &httpSrv.TagScript{Src: "js20/{{SRC}}"}
+	{{/JS_SCRIPTS}}
+}
